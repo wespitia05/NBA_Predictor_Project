@@ -2,6 +2,8 @@
 from nba_api.stats.static import players
 # import endpoints to retrieve player stats
 from nba_api.stats.endpoints import playercareerstats, commonplayerinfo
+# import teams for team names
+from nba_api.stats.static import teams
 # import pandas to work with tabular data
 import pandas as pd
 
@@ -16,6 +18,18 @@ def find_player_id(player_name):
     # return none if no match is found
     else:
         return None
+
+# this function will find the name of the team using the team id
+def get_team_name(team_id):
+    # search for all teams that match the team id
+    all_teams = teams.get_teams()
+    # iterate through all team names
+    for team in all_teams:
+        # if the team id matches the team id from teams, return the full name
+        if team['id'] == team_id:
+            return team['full_name']
+    # otherwise return error message
+    return "team not found"
 
 # this function will find and display the stats the searched player
 def display_player_stats(player_name):
@@ -69,12 +83,16 @@ def display_player_stats(player_name):
 
     # get last row in dataframe (most recent season)
     recent_season = career_df.iloc[-1]
+
+    # get the team name using the team id
+    team_name = get_team_name(recent_season['TEAM_ID'])
     
     # display selected stats from that row
     print("*****************************")
     print("        CAREER STATS         ")
     print(f"season: {recent_season['SEASON_ID']}")
     print(f"team id: {recent_season['TEAM_ID']}")
+    print(f"team name: {team_name}")
     print(f"games played: {recent_season['GP']}")
     print(f"points per game: {recent_season['PTS'] / recent_season['GP']:.2f}")
     print(f"rebounds per game: {recent_season['REB'] / recent_season['GP']:.2f}")
