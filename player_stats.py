@@ -1,7 +1,7 @@
 # import list of NBA players
 from nba_api.stats.static import players
 # import endpoints to retrieve player stats
-from nba_api.stats.endpoints import playercareerstats
+from nba_api.stats.endpoints import playercareerstats, commonplayerinfo
 # import pandas to work with tabular data
 import pandas as pd
 
@@ -31,6 +31,36 @@ def display_player_stats(player_name):
     player_id = player['id']
     print(f"found: {player['full_name']} (ID: {player_id})\n")
 
+    # ***** PLAYER INFO ***** #
+    info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
+    # get player bio info
+    info_df = info.get_data_frames()[0]
+
+    # extract bio info
+    height = info_df.at[0, 'HEIGHT']
+    weight = info_df.at[0, 'WEIGHT']
+    position = info_df.at[0, 'POSITION']
+    birthdate = info_df.at[0, 'BIRTHDATE']
+    country = info_df.at[0, 'COUNTRY']
+    draft_year = info_df.at[0, 'DRAFT_YEAR']
+    college = info_df.at[0, 'SCHOOL']
+
+    # display player information
+    print("*****************************")
+    print("         PLAYER INFO         ")
+    print(f"position: {position}")
+    print(f"height: {height}")
+    print(f"weight: {weight}lbs")
+    print(f"birthday: {birthdate}")
+    print(f"college: {college if pd.notna(college) else 'N/A'}")
+    print(f"draft year: {draft_year}")
+    print(f"country: {country}")
+    print("*****************************")
+
+    print()
+
+    # ***** CAREER STATS ***** #
+
     # use player ID to get career stats with NBA API
     career = playercareerstats.PlayerCareerStats(player_id=player_id)
 
@@ -41,10 +71,12 @@ def display_player_stats(player_name):
     recent_season = career_df.iloc[-1]
     
     # display selected stats from that row
-    print("most recent season stats: ")
+    print("*****************************")
+    print("        CAREER STATS         ")
     print(f"season: {recent_season['SEASON_ID']}")
     print(f"team id: {recent_season['TEAM_ID']}")
     print(f"games played: {recent_season['GP']}")
     print(f"points per game: {recent_season['PTS'] / recent_season['GP']:.2f}")
     print(f"rebounds per game: {recent_season['REB'] / recent_season['GP']:.2f}")
     print(f"assists per game: {recent_season['AST'] / recent_season['GP']:.2f}")
+    print("*****************************")
