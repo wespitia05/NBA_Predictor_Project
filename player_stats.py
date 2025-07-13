@@ -89,6 +89,7 @@ def display_player_stats(player_name):
     for index, row in season_rows.iterrows():
         print(f"{row['SEASON_ID']}", end=", ")
     
+    # while loop will keep prompting user to enter valid season year
     while True:
         # ask user to choose a season
         selected_season = input("enter a season to view stats for (ex. 2022-23): ")
@@ -96,12 +97,15 @@ def display_player_stats(player_name):
         # find the matching season row
         season_stats = season_rows[season_rows['SEASON_ID'] == selected_season]
 
+        # if there is no seasons for inputted player, exit program
         if not season_stats.empty:
             break
-
+        
+        # print error message for incorrect input
         print(f"no stats found for season {season_row}")
         print("please try again")
     
+    # get the first row for given season
     season_row = season_stats.iloc[0]
 
     # get the team name using the team id
