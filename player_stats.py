@@ -81,20 +81,39 @@ def display_player_stats(player_name):
     # convert returned data into a pandas dataframe
     career_df = career.get_data_frames()[0]
 
-    # get last row in dataframe (most recent season)
-    recent_season = career_df.iloc[-1]
+    # filter out "career totals" row
+    season_rows = career_df[career_df['SEASON_ID'] != 'Career']
+
+    # list available seasons for chosen player
+    print("seasons played:")
+    for index, row in season_rows.iterrows():
+        print(f"{row['SEASON_ID']}", end=", ")
+    
+    while True:
+        # ask user to choose a season
+        selected_season = input("enter a season to view stats for (ex. 2022-23): ")
+
+        # find the matching season row
+        season_stats = season_rows[season_rows['SEASON_ID'] == selected_season]
+
+        if not season_stats.empty:
+            break
+
+        print(f"no stats found for season {season_row}")
+        print("please try again")
+    
+    season_row = season_stats.iloc[0]
 
     # get the team name using the team id
-    team_name = get_team_name(recent_season['TEAM_ID'])
+    team_name = get_team_name(season_row['TEAM_ID'])
     
     # display selected stats from that row
     print("*****************************")
-    print("        CAREER STATS         ")
-    print(f"season: {recent_season['SEASON_ID']}")
-    print(f"team id: {recent_season['TEAM_ID']}")
+    print(f"CAREER STATS FOR SEASON {selected_season}")
+    print(f"team id: {season_row['TEAM_ID']}")
     print(f"team name: {team_name}")
-    print(f"games played: {recent_season['GP']}")
-    print(f"points per game: {recent_season['PTS'] / recent_season['GP']:.2f}")
-    print(f"rebounds per game: {recent_season['REB'] / recent_season['GP']:.2f}")
-    print(f"assists per game: {recent_season['AST'] / recent_season['GP']:.2f}")
+    print(f"games played: {season_row['GP']}")
+    print(f"points per game: {season_row['PTS'] / season_row['GP']:.2f}")
+    print(f"rebounds per game: {season_row['REB'] / season_row['GP']:.2f}")
+    print(f"assists per game: {season_row['AST'] / season_row['GP']:.2f}")
     print("*****************************")
