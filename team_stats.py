@@ -33,6 +33,7 @@ def display_team_stats(team_name):
 
     # fetch the team info
     info = teaminfocommon.TeamInfoCommon(team_id=team_id)
+    
     # get the first result of team info
     info_df = info.get_data_frames()[0]
     row = info_df.iloc[0]

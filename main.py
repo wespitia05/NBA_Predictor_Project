@@ -35,7 +35,6 @@ if __name__ == "__main__":
                 if user_input == 'team'.lower():
                     team1 = input("enter the first team: ")
                     team2 = input("enter the opposing team: ")
-
                     match_predictor(team1, team2)
                 # USER CHOSE PLAYER
                 elif user_input == 'player'.lower():
