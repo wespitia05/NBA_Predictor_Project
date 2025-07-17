@@ -24,14 +24,15 @@ for value in df['HOME/AWAY']:
         home_away_num.append(0)
 df['HOME/AWAY'] = home_away_num
 
-# gather data
+# gather data, these stats will be used to train the model
 X = df[['POINTS', 'REBOUNDS', 'ASSISTS', 'TURNOVERS', 'HOME/AWAY']]
+# this is what we want to predict
 y = df['WIN']
 
 # split our data into training and testing
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# train our model
+# train our model (allow more iteration so it can learn)
 model = LogisticRegression(max_iter=1000)
 model.fit(X_train, y_train)
 
@@ -73,9 +74,22 @@ else:
 
     # display the predictions
     print(f"\naveraged over last 5 games for {team_name_input}")
-    print(f"points: {avg_points:.2f}, rebounds: {avg_rebounds:.2f}, assists: {avg_assists:.2f}, turnovers: {avg_turnovers:.2f}")
+    print(f"points: {avg_points:.2f}")
+    print(f"rebounds: {avg_rebounds:.2f}")
+    print(f"assists: {avg_assists:.2f}")
+    print(f"turnovers: {avg_turnovers:.2f}")
+    print(f"home/away: {home_away_value}")
 
     if predicted_result == 1:
         print(f"\npredicted result for {team_name_input} is: WIN")
     else:
         print(f"\npredicted result for {team_name_input} is: LOSS")
+
+    # explain how we came to this prediciton
+    for feature_name, value, coef in zip(X.columns, [avg_points, avg_rebounds, avg_assists, avg_turnovers, home_away_value], model.coef_[0]):
+        # contribution value
+        contribution = value * coef
+        direction = "WIN" if coef > 0 else "LOSS"
+        print(f"{feature_name}: value = {value:.2f}, weight = {coef:.4f}, contribution = {contribution:.2f} (leans {direction})")
+    
+    print(f"\nmodel intercept (bias): {model.intercept_[0]:.4f}")
