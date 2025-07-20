@@ -4,6 +4,9 @@ import pandas as pd
 from nba_api.stats.endpoints import leaguegamefinder
 # import list of nba teams
 from nba_api.stats.static import teams
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
 
 # this function will find the teams name
 def find_team_info(team_name):
@@ -91,16 +94,16 @@ print(f"\nlast 5 head to head games between {team1_info['full_name']} and {team2
 print(head_to_head_games[['GAME_DATE', 'MATCHUP', 'PTS', 'REB', 'AST', 'TOV']])
 
 # add a column to each to label the source
-team1_games = team1_last_five_games[['GAME_DATE','TEAM_ABBREVIATION','MATCHUP','PTS','REB','AST','TOV']].copy()
-team1_games.columns = ['Game Date', 'Team', 'Matchup', 'Points', 'Rebounds', 'Assists', 'Turnovers']
+team1_games = team1_last_five_games[['GAME_DATE','TEAM_ABBREVIATION','MATCHUP','PTS','REB','AST','TOV', 'WL']].copy()
+team1_games.columns = ['Game Date', 'Team', 'Matchup', 'Points', 'Rebounds', 'Assists', 'Turnovers', 'Result']
 team1_games['SOURCE'] = f"{team1_info['abbreviation']}_last5"
 
-team2_games = team2_last_five_games[['GAME_DATE','TEAM_ABBREVIATION','MATCHUP','PTS','REB','AST','TOV']].copy()
-team2_games.columns = ['Game Date', 'Team', 'Matchup', 'Points', 'Rebounds', 'Assists', 'Turnovers']
+team2_games = team2_last_five_games[['GAME_DATE','TEAM_ABBREVIATION','MATCHUP','PTS','REB','AST','TOV', 'WL']].copy()
+team2_games.columns = ['Game Date', 'Team', 'Matchup', 'Points', 'Rebounds', 'Assists', 'Turnovers', 'Result']
 team2_games['SOURCE'] = f"{team2_info['abbreviation']}_last5"
 
-head_to_head_games = head_to_head_games[['GAME_DATE','TEAM_ABBREVIATION','MATCHUP','PTS','REB','AST','TOV']].copy()
-head_to_head_games.columns = ['Game Date', 'Team', 'Matchup', 'Points', 'Rebounds', 'Assists', 'Turnovers']
+head_to_head_games = head_to_head_games[['GAME_DATE','TEAM_ABBREVIATION','MATCHUP','PTS','REB','AST','TOV', 'WL']].copy()
+head_to_head_games.columns = ['Game Date', 'Team', 'Matchup', 'Points', 'Rebounds', 'Assists', 'Turnovers', 'Result']
 head_to_head_games['SOURCE'] = "head_to_head"
 
 # combine them
@@ -109,3 +112,82 @@ combined = pd.concat([team1_games, team2_games, head_to_head_games], ignore_inde
 # save to CSV
 combined.to_csv("nba_team1_team2_stats.csv", index=False)
 print("\n✅ Data saved to nba_team1_team2_stats.csv")
+
+# load the dataset to being the predictions
+df = pd.read_csv("nba_team1_team2_stats.csv")
+
+# ***** PREPARING THE DATA ***** #
+# convert win/lose into 1/0
+df['WIN'] = df['Result'].apply(lambda x: 1 if x == 'W' else 0)
+
+# our features: stats we want the model to learn from
+X = df[['Points', 'Rebounds', 'Assists', 'Turnovers']]
+
+# our target: what we want model to predict
+y = df['WIN']
+
+# ***** SPLIT DATA FOR TRAINING/TESTING ***** #
+# 80% will be used to train the model, 20% will be used to test it
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# ***** CREATE/TRAIN THE MODEL ***** #
+# allows enough iterations to train
+model = LogisticRegression(max_iter=1000)
+# train the model
+model.fit(X_train, y_train)
+
+# ***** CHECK MODEL ACCURACY ***** #
+predictions = model.predict(X_test)
+accuracy = accuracy_score(y_test, predictions)
+print(f"\nmodel accuracy: {accuracy:.2f}")
+
+# ***** PREDICT MATCHUP ***** #
+# prompt user to input team abbreviations
+team1_name = input("\nenter first team abbreviation (ex. LAL): ").upper()
+team2_name = input("\nenter secon team abbreviation (ex. NYK): ").upper()
+
+# filter rows for each team
+team1_rows = df[df['Team'] == team1_name]
+team2_rows = df[df['Team'] == team2_name]
+
+# if we dont have data for both teams, display error message
+if team1_rows.empty or team2_rows.empty:
+    print("\ncouldn't find data for one or both teams")
+else:
+    # calculate average stats for each team
+    team1_stats = [
+        float(team1_rows['Points'].mean()),
+        float(team1_rows['Rebounds'].mean()),
+        float(team1_rows['Assists'].mean()),
+        float(team1_rows['Turnovers'].mean())
+    ]
+    team2_stats = [
+        float(team2_rows['Points'].mean()),
+        float(team2_rows['Rebounds'].mean()),
+        float(team2_rows['Assists'].mean()),
+        float(team2_rows['Turnovers'].mean())
+    ]
+
+    # create dataframes with feature names
+    team1_df = pd.DataFrame([team1_stats], columns=['Points','Rebounds','Assists','Turnovers'])
+    team2_df = pd.DataFrame([team2_stats], columns=['Points','Rebounds','Assists','Turnovers'])
+
+    # predict results for each team
+    team1_predict = model.predict(team1_df)[0]
+    team2_predict = model.predict(team2_df)[0]
+
+    # display results
+    print(f"\naverage stats for {team1_name}: {team1_stats}")
+    print(f"predicted result: {'WIN' if team1_predict == 1 else 'LOSS'}")
+
+    print(f"\naverage stats for {team2_name}: {team2_stats}")
+    print(f"predicted result: {'WIN' if team2_predict == 1 else 'LOSS'}")
+
+    # final matchup decision 
+    print("\nfinal matchup prediction:")
+    if team1_predict == 1 and team2_predict == 0:
+        print(f"{team1_name} is more likely to WIN over {team2_name}")
+    elif team1_predict == 0 and team2_predict == 1:
+        print(f"{team2_name} is more likely to WIN over {team1_name}")
+    elif team1_predict == 1 and team2_predict == 1:
+        print(f"both {team1_name} and {team2_name} will have a close match")
