@@ -23,14 +23,14 @@
             <!-- buttons for east/west conference -->
             <!-- buttons -->
             <div class="button-container">
-                <a href="#" class="conf-button">Eastern Conference</a>
+                <a href="#" class="conf-button active">Eastern Conference</a>
                 <a href="#" class="conf-button">Western Conference</a>
             </div>
         </div>
     </header>
 
     <!-- eastern conference teams grid -->
-    <div class="eastern-teams-grid">
+    <div class="eastern-teams-grid" id="eastern-teams">
         <div class="team-item">
             <img src="{{url_for('static', filename='images/atlanta_hawks_logo.png')}}" alt="Atlanta Hawks">
             <p>Atlanta Hawks</p>
@@ -94,7 +94,7 @@
     </div>
 
     <!-- western conference teams grid -->
-    <div class="western-teams-grid">
+    <div class="western-teams-grid" id="western-teams" style="display:none">
         <div class="team-item">
             <img src="{{url_for('static', filename='images/dallas_mavericks_logo.png')}}" alt="Dallas Mavericks">
             <p>Dallas Mavericks</p>

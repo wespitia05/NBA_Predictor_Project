@@ -79,6 +79,10 @@ p {
     transform: scale(1.05);
 }
 
+.conf-button.active {
+    background-color: #c8102e;
+}
+
 /* grid layout */
 .eastern-teams-grid {
     display: grid;
