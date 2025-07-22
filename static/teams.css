@@ -24,7 +24,7 @@ body {
 header {
     display: flex;
     padding: 10px 20px;
-    gap: 40%;
+    gap: 30vw;
     .logo {
         width: 80px;
         height: auto;
@@ -42,6 +42,7 @@ header {
 .header-text {
     text-align: center;
 }
+
 h1 {
     font-size: 48px;
     color: #1d428a;
@@ -53,6 +54,29 @@ p {
     font-size: 18px;
     color: #fff;
     margin: 5px 0;
+}
+
+/* conference button styling */
+.button-container {
+    margin-top: 15px;
+    display: flex;
+    gap: 15px; /* space between buttons */
+}
+
+.conf-button {
+    background-color: #0033a0;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    transition: background-color 0.3s, transform 0.3s ease;
+}
+
+.conf-button:hover {
+    background-color: #c8102e;
+    transform: scale(1.05);
 }
 
 /* grid layout */
