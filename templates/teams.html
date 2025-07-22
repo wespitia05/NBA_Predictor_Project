@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA Predictor Project Teams Page</title>
+    <!-- link to the css file in static folder -->
+    <link rel="stylesheet" href="{{url_for('static', filename='teams.css')}}">
+    <!-- link to the js file in the static folder -->
+    <script src="{{url_for('static', filename='teams.js')}}"></script>
+</head>
+<body>
+    <header>
+        <!-- nba logo -->
+        <img src="{{ url_for('static', filename='images/nba-logo.png') }}" alt="NBA Logo" class="logo">
+
+        <!-- wrap title and description in container-->
+        <div class="header-text">
+            <!-- page title -->
+            <h1>Teams</h1>
+            <!-- page description -->
+            <p>Select your team below</p>
+        </div>
+    </header>
+
+    <!-- buttons for east/west conference -->
+    <!-- buttons -->
+    <div class="button-container">
+    </div>
+
+    <!-- eastern conference teams grid -->
+    <div class="teams-grid">
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/atlanta_hawks_logo.png')}}" alt="Atlanta Hawks">
+            <p>Atlanta Hawks</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/brooklyn_nets_logo.png')}}" alt="Brooklyn Nets">
+            <p>Brooklyn Nets</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/boston_celtics_logo.png')}}" alt="Boston Celtics">
+            <p>Boston Celtics</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/cleveland_cavaliers_logo.png')}}" alt="Cleveland Cavaliers">
+            <p>Cleveland Cavaliers</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/charlotte_hornets_logo.png')}}" alt="Charlotte Hornets">
+            <p>Charlotte Hornets</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/chicago_bulls_logo.png')}}" alt="Chicago Bulls">
+            <p>Chicago Bulls</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/detroit_pistons_logo.png')}}" alt="Detroit Pistons">
+            <p>Detroit Pistons</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/indiana_pacers_logo.png')}}" alt="Indiana Pacers">
+            <p>Indiana Pacers</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/miami_heat_logo.png')}}" alt="Miami Heat">
+            <p>Miami Heat</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/milwaukee_bucks_logo.png')}}" alt="Milwaukee Bucks">
+            <p>Milwaukee Bucks</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/new_york_knicks_logo.png')}}" alt="New York Knicks">
+            <p>New York Knicks</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/orlando_magic_logo.png')}}" alt="Orlando Magic">
+            <p>Orlando Magic</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/philadelphia_76ers_logo.png')}}" alt="Philadelphia 76ers">
+            <p>Philadelphia 76ers</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/toronto_raptors_logo.png')}}" alt="Toronto Raptors">
+            <p>Toronto Raptors</p>
+        </div>
+        <div class="team-item">
+            <img src="{{url_for('static', filename='images/washington_wizards_logo.png')}}" alt="Washington Wizards">
+            <p>Washington Wizards</p>
+        </div>
+    </div>
+
+    <!-- footer -->
+    <footer>
+        <p>&copy; 2025 Courtside Predictor - Built with Flask</p>
+    </footer>
+</body>
+</html>

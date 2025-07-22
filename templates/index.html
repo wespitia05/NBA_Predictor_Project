@@ -10,24 +10,26 @@
     <script src="{{url_for('static', filename='index.js')}}"></script>
 </head>
 <body>
-    <!-- nba logo -->
-    <img src="{{url_for('static', filename='images/nba-logo.png')}}" alt="NBA Logo" class="logo">
+    <div class="main-content">
+        <!-- nba logo -->
+        <img src="{{url_for('static', filename='images/nba-logo.png')}}" alt="NBA Logo" class="logo">
 
-    <!-- application name -->
-    <h1>Courtside Predictor</h1>
+        <!-- application name -->
+        <h1>Courtside Predictor</h1>
 
-    <!-- decription of the application -->
-    <p>
-        Get real-time predictions and stats on NBA teams and players!
-    </p>
-    <p>
-        Choose what you want to explore below!
-    </p>
+        <!-- decription of the application -->
+        <p>
+            Get real-time predictions and stats on NBA teams and players!
+        </p>
+        <p>
+            Choose what you want to explore below!
+        </p>
 
-    <!-- buttons -->
-    <div class="button-container">
-        <a href="{{url_for('teams_page')}}" class="button">Teams</a>
-        <a href="{{url_for('players_page')}}" class="button">Players</a>
+        <!-- buttons -->
+        <div class="button-container">
+            <a href="{{url_for('teams_page')}}" class="button">Teams</a>
+            <a href="{{url_for('players_page')}}" class="button">Players</a>
+        </div>
     </div>
 
     <!-- footer -->

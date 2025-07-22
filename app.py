@@ -31,7 +31,7 @@ def players_page():
 # route for the teams page
 @app.route('/teams')
 def teams_page():
-    return "<h1>Teams page coming soon!</h1>"
+    return render_template('teams.html')  # this will look in the templates/ folder
 
 # run the application
 if __name__ == '__main__':

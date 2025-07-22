@@ -1,0 +1,88 @@
+html, body {
+    height: 100%;  
+    margin: 0;  
+}
+
+/* overall page styling */
+body {
+    font-family: 'Jura', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+    text-align: center;
+    background: linear-gradient(to bottom right, #2b5ec3, #c8102e);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    color: #fff;
+    padding: 20px;
+    overflow-x: hidden;
+}
+
+/* styling for the nba logo */
+header {
+    display: flex;
+    padding: 10px 20px;
+    gap: 40%;
+    .logo {
+        width: 80px;
+        height: auto;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .logo:hover {
+        transform: scale(1.2);
+    }
+}
+
+/* main title styling */
+.header-text {
+    text-align: center;
+}
+h1 {
+    font-size: 48px;
+    color: #1d428a;
+    margin: 20px 0;
+}
+
+/* description text styling */
+p {
+    font-size: 18px;
+    color: #fff;
+    margin: 5px 0;
+}
+
+/* grid layout */
+.teams-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    justify-items: center;
+    margin-bottom: 40px;
+}
+
+.team-item {
+    flex-direction: column;
+}
+
+/* logo items */
+.team-item img {
+    width: 200px;
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+.team-item img:hover {
+    transform: scale(1.1);
+}
+
+/* footer styling */
+footer {
+    margin-top: 50px;
+    font-size: 14px;
+    color: #fff;
+    padding: 50px 0;
+}

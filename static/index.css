@@ -1,14 +1,33 @@
+html, body {
+    height: 100%;  
+    margin: 0;
+    overflow-y: hidden;  
+}
+
 /* overall page styling */
 body {
     font-family: 'Jura', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
     text-align: center;
     background: linear-gradient(to bottom right, #2b5ec3, #c8102e);
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
     color: #fff;
-    margin: auto;
-    margin-top: 7%;
+    padding: 20px;
+    overflow-x: hidden;
+}
+
+/* center the main content vertically */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 /* styling for the nba logo */
@@ -55,16 +74,17 @@ p {
     text-decoration: none;
     font-size: 20px;
     font-weight: bold;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.6s ease;
 }
 
 .button:hover {
     background-color: #c8102e;
+    transform: scale(1.1);
 }
 
 /* footer styling */
 footer {
-    margin-top: 50px;
     font-size: 14px;
     color: #fff;
+    padding: 10px 0;
 }
