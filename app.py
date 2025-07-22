@@ -14,12 +14,12 @@ def predict_page():
     return "<h1>Predict page coming soon!</h1>"
 
 # route for the players statistics page
-@app.route('/stats')
+@app.route('/player_stats')
 def players_stats_page():
     return "<h1>Player statistics page coming soon!</h1>"
 
 # route for the teams statistics page
-@app.route('/stats')
+@app.route('/team_stats')
 def teams_stats_page():
     return "<h1>Team statistics page coming soon!</h1>"
 

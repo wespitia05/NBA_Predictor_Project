@@ -32,7 +32,6 @@ header {
         transition: transform 0.3s ease;
         cursor: pointer;
     }
-    
     .logo:hover {
         transform: scale(1.2);
     }
@@ -90,6 +89,13 @@ p {
     gap: 40px;
     justify-items: center;
     margin-bottom: 40px;
+    p {
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+    p:hover {
+        transform: scale(1.1);
+    }
 }
 
 .western-teams-grid {
@@ -98,6 +104,13 @@ p {
     gap: 40px;
     justify-items: center;
     margin-bottom: 40px;
+    p {
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+    p:hover {
+        transform: scale(1.1);
+    }
 }
 
 .team-item {
