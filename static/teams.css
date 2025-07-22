@@ -56,7 +56,15 @@ p {
 }
 
 /* grid layout */
-.teams-grid {
+.eastern-teams-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    justify-items: center;
+    margin-bottom: 40px;
+}
+
+.western-teams-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 40px;
