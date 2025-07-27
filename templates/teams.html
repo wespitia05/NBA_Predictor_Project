@@ -32,126 +32,184 @@
     <!-- eastern conference teams grid -->
     <div class="eastern-teams-grid" id="eastern-teams">
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/atlanta_hawks_logo.png')}}" alt="Atlanta Hawks">
-            <p>Atlanta Hawks</p>
+            <a href="{{ url_for('team_stats', team_abbr='ATL') }}">
+                <img src="{{ url_for('static', filename='images/atlanta_hawks_logo.png') }}" alt="Atlanta Hawks">
+                <p>Atlanta Hawks</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/brooklyn_nets_logo.png')}}" alt="Brooklyn Nets">
-            <p>Brooklyn Nets</p>
+            <a href="{{ url_for('team_stats', team_abbr='BKN') }}">
+                <img src="{{ url_for('static', filename='images/brooklyn_nets_logo.png') }}" alt="Brooklyn Nets">
+                <p>Brooklyn Nets</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/boston_celtics_logo.png')}}" alt="Boston Celtics">
-            <p>Boston Celtics</p>
+            <a href="{{ url_for('team_stats', team_abbr='BOS') }}">
+                <img src="{{ url_for('static', filename='images/boston_celtics_logo.png') }}" alt="Boston Celtics">
+                <p>Boston Celtics</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/cleveland_cavaliers_logo.png')}}" alt="Cleveland Cavaliers">
-            <p>Cleveland Cavaliers</p>
+            <a href="{{ url_for('team_stats', team_abbr='CHA') }}">
+                <img src="{{ url_for('static', filename='images/charlotte_hornets_logo.png') }}" alt="Charlotte Hornets">
+                <p>Charlotte Hornets</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/charlotte_hornets_logo.png')}}" alt="Charlotte Hornets">
-            <p>Charlotte Hornets</p>
+            <a href="{{ url_for('team_stats', team_abbr='CHI') }}">
+                <img src="{{ url_for('static', filename='images/chicago_bulls_logo.png') }}" alt="Chicago Bulls">
+                <p>Chicago Bulls</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/chicago_bulls_logo.png')}}" alt="Chicago Bulls">
-            <p>Chicago Bulls</p>
+            <a href="{{ url_for('team_stats', team_abbr='CLE') }}">
+                <img src="{{ url_for('static', filename='images/cleveland_cavaliers_logo.png') }}" alt="Cleveland Cavaliers">
+                <p>Cleveland Cavaliers</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/detroit_pistons_logo.png')}}" alt="Detroit Pistons">
-            <p>Detroit Pistons</p>
+            <a href="{{ url_for('team_stats', team_abbr='DET') }}">
+                <img src="{{ url_for('static', filename='images/detroit_pistons_logo.png') }}" alt="Detroit Pistons">
+                <p>Detroit Pistons</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/indiana_pacers_logo.png')}}" alt="Indiana Pacers">
-            <p>Indiana Pacers</p>
+            <a href="{{ url_for('team_stats', team_abbr='IND') }}">
+                <img src="{{ url_for('static', filename='images/indiana_pacers_logo.png') }}" alt="Indiana Pacers">
+                <p>Indiana Pacers</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/miami_heat_logo.png')}}" alt="Miami Heat">
-            <p>Miami Heat</p>
+            <a href="{{ url_for('team_stats', team_abbr='MIA') }}">
+                <img src="{{ url_for('static', filename='images/miami_heat_logo.png') }}" alt="Miami Heat">
+                <p>Miami Heat</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/milwaukee_bucks_logo.png')}}" alt="Milwaukee Bucks">
-            <p>Milwaukee Bucks</p>
+            <a href="{{ url_for('team_stats', team_abbr='MIL') }}">
+                <img src="{{ url_for('static', filename='images/milwaukee_bucks_logo.png') }}" alt="Milwaukee Bucks">
+                <p>Milwaukee Bucks</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/new_york_knicks_logo.png')}}" alt="New York Knicks">
-            <p>New York Knicks</p>
+            <a href="{{ url_for('team_stats', team_abbr='NYK') }}">
+                <img src="{{ url_for('static', filename='images/new_york_knicks_logo.png') }}" alt="New York Knicks">
+                <p>New York Knicks</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/orlando_magic_logo.png')}}" alt="Orlando Magic">
-            <p>Orlando Magic</p>
+            <a href="{{ url_for('team_stats', team_abbr='ORL') }}">
+                <img src="{{ url_for('static', filename='images/orlando_magic_logo.png') }}" alt="Orlando Magic">
+                <p>Orlando Magic</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/philadelphia_76ers_logo.png')}}" alt="Philadelphia 76ers">
-            <p>Philadelphia 76ers</p>
+            <a href="{{ url_for('team_stats', team_abbr='PHI') }}">
+                <img src="{{ url_for('static', filename='images/philadelphia_76ers_logo.png') }}" alt="Philadelphia 76ers">
+                <p>Philadelphia 76ers</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/toronto_raptors_logo.png')}}" alt="Toronto Raptors">
-            <p>Toronto Raptors</p>
+            <a href="{{ url_for('team_stats', team_abbr='TOR') }}">
+                <img src="{{ url_for('static', filename='images/toronto_raptors_logo.png') }}" alt="Toronto Raptors">
+                <p>Toronto Raptors</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/washington_wizards_logo.png')}}" alt="Washington Wizards">
-            <p>Washington Wizards</p>
+            <a href="{{ url_for('team_stats', team_abbr='WAS') }}">
+                <img src="{{ url_for('static', filename='images/washington_wizards_logo.png') }}" alt="Washington Wizards">
+                <p>Washington Wizards</p>
+            </a>
         </div>
-    </div>
+    </div>  
 
     <!-- western conference teams grid -->
     <div class="western-teams-grid" id="western-teams" style="display:none">
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/dallas_mavericks_logo.png')}}" alt="Dallas Mavericks">
-            <p>Dallas Mavericks</p>
+            <a href="{{ url_for('team_stats', team_abbr='DAL') }}">
+                <img src="{{ url_for('static', filename='images/dallas_mavericks_logo.png') }}" alt="Dallas Mavericks">
+                <p>Dallas Mavericks</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/denver_nuggets_logo.png')}}" alt="Denver Nuggets">
-            <p>Denver Nuggets</p>
+            <a href="{{ url_for('team_stats', team_abbr='DEN') }}">
+                <img src="{{ url_for('static', filename='images/denver_nuggets_logo.png') }}" alt="Denver Nuggets">
+                <p>Denver Nuggets</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/golden_state_warriors_logo.png')}}" alt="Golden State Warriors">
-            <p>Golden State Warriors</p>
+            <a href="{{ url_for('team_stats', team_abbr='GSW') }}">
+                <img src="{{ url_for('static', filename='images/golden_state_warriors_logo.png') }}" alt="Golden State Warriors">
+                <p>Golden State Warriors</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/houston_rockets_logo.png')}}" alt="Houston Rockets">
-            <p>Houston Rockets</p>
+            <a href="{{ url_for('team_stats', team_abbr='HOU') }}">
+                <img src="{{ url_for('static', filename='images/houston_rockets_logo.png') }}" alt="Houston Rockets">
+                <p>Houston Rockets</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/los_angeles_clippers_logo.png')}}" alt="LA Clippers">
-            <p>LA Clippers</p>
+            <a href="{{ url_for('team_stats', team_abbr='LAC') }}">
+                <img src="{{ url_for('static', filename='images/los_angeles_clippers_logo.png') }}" alt="LA Clippers">
+                <p>LA Clippers</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/los_angeles_lakers_logo.png')}}" alt="Los Angeles Lakers">
-            <p>Los Angeles Lakers</p>
+            <a href="{{ url_for('team_stats', team_abbr='LAL') }}">
+                <img src="{{ url_for('static', filename='images/los_angeles_lakers_logo.png') }}" alt="Los Angeles Lakers">
+                <p>Los Angeles Lakers</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/memphis_grizzlies_logo.png')}}" alt="Memphis Grizzlies">
-            <p>Memphis Grizzlies</p>
+            <a href="{{ url_for('team_stats', team_abbr='MEM') }}">
+                <img src="{{ url_for('static', filename='images/memphis_grizzlies_logo.png') }}" alt="Memphis Grizzlies">
+                <p>Memphis Grizzlies</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/new_orleans_pelicans_logo.png')}}" alt="New Orleans Pelicans">
-            <p>New Orleans Pelicans</p>
+            <a href="{{ url_for('team_stats', team_abbr='NOP') }}">
+                <img src="{{ url_for('static', filename='images/new_orleans_pelicans_logo.png') }}" alt="New Orleans Pelicans">
+                <p>New Orleans Pelicans</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/oklahoma_city_thunder_logo.png')}}" alt="Oklahoma City Thunder">
-            <p>Oklahoma City Thunder</p>
+            <a href="{{ url_for('team_stats', team_abbr='OKC') }}">
+                <img src="{{ url_for('static', filename='images/oklahoma_city_thunder_logo.png') }}" alt="Oklahoma City Thunder">
+                <p>Oklahoma City Thunder</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/phoenix_suns_logo.png')}}" alt="Phoenix Suns">
-            <p>Phoenix Suns</p>
+            <a href="{{ url_for('team_stats', team_abbr='PHX') }}">
+                <img src="{{ url_for('static', filename='images/phoenix_suns_logo.png') }}" alt="Phoenix Suns">
+                <p>Phoenix Suns</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/portland_trail_blazers_logo.png')}}" alt="Portland Trail Blazers">
-            <p>Portland Trail Blazers</p>
+            <a href="{{ url_for('team_stats', team_abbr='POR') }}">
+                <img src="{{ url_for('static', filename='images/portland_trail_blazers_logo.png') }}" alt="Portland Trail Blazers">
+                <p>Portland Trail Blazers</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/sacramento_kings_logo.png')}}" alt="Sacramento Kings">
-            <p>Sacramento Kings</p>
+            <a href="{{ url_for('team_stats', team_abbr='SAC') }}">
+                <img src="{{ url_for('static', filename='images/sacramento_kings_logo.png') }}" alt="Sacramento Kings">
+                <p>Sacramento Kings</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/san_antonio_spurs_logo.png')}}" alt="San Antonio Spurs">
-            <p>San Antonio Spurs</p>
+            <a href="{{ url_for('team_stats', team_abbr='SAS') }}">
+                <img src="{{ url_for('static', filename='images/san_antonio_spurs_logo.png') }}" alt="San Antonio Spurs">
+                <p>San Antonio Spurs</p>
+            </a>
         </div>
         <div class="team-item">
-            <img src="{{url_for('static', filename='images/utah_jazz_logo.png')}}" alt="Utah Jazz">
-            <p>Utah Jazz</p>
+            <a href="{{ url_for('team_stats', team_abbr='UTA') }}">
+                <img src="{{ url_for('static', filename='images/utah_jazz_logo.png') }}" alt="Utah Jazz">
+                <p>Utah Jazz</p>
+            </a>
         </div>
-    </div>
+    </div>    
 
     <!-- footer -->
     <footer>
