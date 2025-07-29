@@ -1,12 +1,13 @@
 from flask import Flask, render_template
 import pandas as pd
+import os
 
 # creates the flask app
 app = Flask(__name__)
 
 # load our stats data 
 df = pd.read_csv('nba_games_2020_to_2025.csv')
-print(df.columns)
+# print(df.columns)
 
 # route for the homepage
 @app.route('/')
@@ -26,14 +27,14 @@ def players_stats_page():
 # route for the teams statistics page
 @app.route('/team/<team_abbr>')
 def team_stats(team_abbr):
-    # filter games for this team
+    # filter games for this team from the CSV
     team_games = df[df['TEAM ABBR'] == team_abbr.upper()]
-    
+
     if team_games.empty:
         return f"<h1>No data found for team: {team_abbr}</h1>"
 
-    # get last 10 games
-    recent_games = team_games.sort_values(by='GAME DATE', ascending=False).head(10)
+    # get the last 20 games (by date)
+    recent_games = team_games.sort_values(by='GAME DATE', ascending=False).head(20)
 
     # calculate averages
     avg_points = recent_games['POINTS'].mean()
@@ -43,6 +44,7 @@ def team_stats(team_abbr):
 
     return render_template('team_stats.html',
                            team_abbr=team_abbr.upper(),
+                           games=recent_games.to_dict(orient='records'),
                            avg_points=avg_points,
                            avg_rebounds=avg_rebounds,
                            avg_assists=avg_assists,
