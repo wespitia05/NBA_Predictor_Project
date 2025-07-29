@@ -1,7 +1,12 @@
 from flask import Flask, render_template
+import pandas as pd
 
 # creates the flask app
 app = Flask(__name__)
+
+# load our stats data 
+df = pd.read_csv('nba_games_2020_to_2025.csv')
+print(df.columns)
 
 # route for the homepage
 @app.route('/')
@@ -19,9 +24,29 @@ def players_stats_page():
     return "<h1>Player statistics page coming soon!</h1>"
 
 # route for the teams statistics page
-@app.route('/team_stats')
-def teams_stats_page():
-    return "<h1>Team statistics page coming soon!</h1>"
+@app.route('/team/<team_abbr>')
+def team_stats(team_abbr):
+    # filter games for this team
+    team_games = df[df['TEAM ABBR'] == team_abbr.upper()]
+    
+    if team_games.empty:
+        return f"<h1>No data found for team: {team_abbr}</h1>"
+
+    # get last 10 games
+    recent_games = team_games.sort_values(by='GAME DATE', ascending=False).head(10)
+
+    # calculate averages
+    avg_points = recent_games['POINTS'].mean()
+    avg_rebounds = recent_games['REBOUNDS'].mean()
+    avg_assists = recent_games['ASSISTS'].mean()
+    avg_turnovers = recent_games['TURNOVERS'].mean()
+
+    return render_template('team_stats.html',
+                           team_abbr=team_abbr.upper(),
+                           avg_points=avg_points,
+                           avg_rebounds=avg_rebounds,
+                           avg_assists=avg_assists,
+                           avg_turnovers=avg_turnovers)
 
 # route for the players page
 @app.route('/players')

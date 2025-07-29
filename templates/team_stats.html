@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ team_abbr }} Stats</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='team_stats.css') }}">
+</head>
+<body>
+    <h1>{{ team_abbr }} - Last 10 Games Averages</h1>
+    <ul>
+        <li>Points: {{ avg_points | round(2) }}</li>
+        <li>Rebounds: {{ avg_rebounds | round(2) }}</li>
+        <li>Assists: {{ avg_assists | round(2) }}</li>
+        <li>Turnovers: {{ avg_turnovers | round(2) }}</li>
+    </ul>
+    <a href="{{ url_for('teams_page') }}">Back to Teams</a>
+</body>
+</html>
