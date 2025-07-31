@@ -1,0 +1,33 @@
+html, body {
+    height: 100%;  
+    margin: 0;  
+}
+
+/* overall page styling */
+body {
+    font-family: 'Jura', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+    text-align: center;
+    background: linear-gradient(to bottom right, #2b5ec3, #c8102e);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    color: #fff;
+    padding: 20px;
+    overflow-x: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 0.5rem;
+    text-align: center;
+    border: 1px solid #ccc;
+}

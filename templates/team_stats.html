@@ -1,34 +1,50 @@
-<h1>{{ team_abbr }} - Last 20 Games</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Stats Page</title>
+    <!-- link to the css file in static folder -->
+    <link rel="stylesheet" href="{{url_for('static', filename='teams_stats.css')}}">
+</head>
+<body>
+    <h1>{{ team_name }} - Last 20 Games</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Game Date</th>
+                <th>Opponent</th>
+                <th>Home/Away</th>
+                <th>Points</th>
+                <th>Rebounds</th>
+                <th>Assists</th>
+                <th>Turnovers</th>
+                <th>Win</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for game in games %}
+            <tr>
+                <td>{{ game['Game Date'] }}</td>
+                <td>{{ game['Opponent'] }}</td>
+                <td>{{ game['Location'] }}</td>
+                <td>{{ game['Points'] }}</td>
+                <td>{{ game['Rebounds'] }}</td>
+                <td>{{ game['Assists'] }}</td>
+                <td>{{ game['Turnovers'] }}</td>
+                <td>{{ 'Yes' if game['Win'] == 1 else 'No' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-<table>
-  <thead>
-    <tr>
-      <th>Game Date</th>
-      <th>Opponent</th>
-      <th>Points</th>
-      <th>Rebounds</th>
-      <th>Assists</th>
-      <th>Turnovers</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for game in games %}
-    <tr>
-      <td>{{ game['GAME DATE'] }}</td>
-      <td>{{ game['OPP ABBR'] }}</td>
-      <td>{{ game['POINTS'] }}</td>
-      <td>{{ game['REBOUNDS'] }}</td>
-      <td>{{ game['ASSISTS'] }}</td>
-      <td>{{ game['TURNOVERS'] }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    <h3>Averages (Last 20 Games)</h3>
+    <ul>
+        <li>Points: {{ avg_points | round(2) }}</li>
+        <li>Rebounds: {{ avg_rebounds | round(2) }}</li>
+        <li>Assists: {{ avg_assists | round(2) }}</li>
+        <li>Turnovers: {{ avg_turnovers | round(2) }}</li>
+    </ul>
 
-<h3>Averages (Last 20 Games)</h3>
-<ul>
-  <li>Points: {{ avg_points | round(2) }}</li>
-  <li>Rebounds: {{ avg_rebounds | round(2) }}</li>
-  <li>Assists: {{ avg_assists | round(2) }}</li>
-  <li>Turnovers: {{ avg_turnovers | round(2) }}</li>
-</ul>
+</body>
+</html>
