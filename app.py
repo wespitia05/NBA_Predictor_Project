@@ -1,6 +1,10 @@
 from flask import Flask, render_template
 import pandas as pd
 import os
+# import list of nba teams
+from nba_api.stats.static import teams
+# import endpoints to retrieve team info
+from nba_api.stats.endpoints import teaminfocommon
 
 # creates the flask app
 app = Flask(__name__)
@@ -27,9 +31,30 @@ def players_stats_page():
 def team_stats(team_abbr):
     # load our stats data 
     df = pd.read_csv('nba_games_2020_to_2025.csv')
-    
+
     # filter games for this team from the CSV
     team_games = df[df['TEAM ABBR'] == team_abbr.upper()]
+
+    # get static team metadata
+    nba_teams = teams.get_teams()
+    team_info = next((t for t in nba_teams if t['abbreviation'] == team_abbr.upper()), None)
+
+    if not team_info:
+        return f"<h1>Could not find metadata for team: {team_abbr}</h1>"
+
+    team_id = team_info['id']
+    team_name = team_info['full_name']
+
+    # get detailed team info from API
+    team_details = teaminfocommon.TeamInfoCommon(team_id=team_id)
+    team_data = team_details.get_data_frames()[0]
+
+    # extract city, conference, division, ranks
+    team_city = team_data.loc[0, 'TEAM_CITY']
+    team_conference = team_data.loc[0, 'TEAM_CONFERENCE']
+    team_division = team_data.loc[0, 'TEAM_DIVISION']
+    conf_rank = team_data.loc[0, 'CONF_RANK']
+    div_rank = team_data.loc[0, 'DIV_RANK']
 
     if team_games.empty:
         return f"<h1>No data found for team: {team_abbr}</h1>"
@@ -61,6 +86,11 @@ def team_stats(team_abbr):
     return render_template('team_stats.html',
                            team_name=team_name,
                            team_abbr=team_abbr.upper(),
+                           team_city=team_city,
+                           team_conference=team_conference,
+                           team_division=team_division,
+                           conf_rank=conf_rank,
+                           div_rank=div_rank,
                            games=games.to_dict(orient='records'),
                            avg_points=avg_points,
                            avg_rebounds=avg_rebounds,

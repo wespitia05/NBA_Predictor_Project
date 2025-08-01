@@ -8,7 +8,28 @@
     <link rel="stylesheet" href="{{url_for('static', filename='teams_stats.css')}}">
 </head>
 <body>
-    <h1>{{ team_name }} - Last 20 Games</h1>
+    <header>
+        <!-- nba logo -->
+        <img src="{{ url_for('static', filename='images/nba-logo.png') }}" alt="NBA Logo" class="logo">
+
+        <!-- wrap title and description in container-->
+        <div class="header-text">
+            <!-- page title -->
+            <h1>{{ team_name }}</h1>
+            <!-- page description -->
+            <p>Last 20 Games</p>
+        </div>
+
+        <!-- wrap basic team info in container -->
+        <div class="team-info">
+            <p><strong>City:</strong> {{ team_city }}</p>
+            <p><strong>Abbreviation:</strong> {{ team_abbr }}</p>
+            <p><strong>Conference:</strong> {{ team_conference }}</p>
+            <p><strong>Division:</strong> {{ team_division }}</p>
+            <p><strong>Conference Rank:</strong> {{ conf_rank }}</p>
+            <p><strong>Division Rank:</strong> {{ div_rank }}</p>
+        </div>
+    </header>
     <table>
         <thead>
             <tr>
