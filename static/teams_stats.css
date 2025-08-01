@@ -55,6 +55,30 @@ p {
     margin: 5px 0;
 }
 
+.team-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 16px;
+    gap: 6px;
+}
+
+.team-info p {
+    display: flex;
+    justify-content: space-between;
+    width: 15vw;
+}
+
+.team-info .label {
+    text-align: left;
+    font-weight: bold;
+}
+
+.team-info .value {
+    text-align: right;
+}
+
+
 table {
     width: 100%;
     border-collapse: collapse;
