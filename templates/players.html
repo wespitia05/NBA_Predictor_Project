@@ -20,22 +20,15 @@
             <h1>Players</h1>
             <!-- page description -->
             <p>Select or search for your player below</p>
-            <!-- buttons for east/west conference -->
-            <!-- buttons -->
-            <div class="button-container">
-                <a href="#" class="conf-button active">Eastern Conference</a>
-                <a href="#" class="conf-button">Western Conference</a>
+            <!-- search bar -->
+            <div class="search-bar">
+                <form id="search-bar" action="/player_stats" method="get">
+                    <input type="text" name="player" id="playerInput" placeholder="Search for a player..." required>
+                    <button type="submit">Search</button>
+                </form>
             </div>
         </div>
     </header>
-
-    <!-- search bar -->
-    <div class="search-bar">
-        <form id="search-bar" action="/player_stats" method="get">
-            <input type="text" name="player" id="playerInput" placeholder="Search for a player..." required>
-            <button type="submit">Search</button>
-        </form>
-    </div>
 
     <!-- players -->
     <table>
