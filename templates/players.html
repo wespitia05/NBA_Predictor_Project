@@ -36,7 +36,29 @@
             <button type="submit">Search</button>
         </form>
     </div>
-    
+
+    <!-- players -->
+    <table>
+        <thread>
+            <tr>
+                <th>Player ID</th>
+                <th>Player Name</th>
+                <th>Team Name</th>
+                <th>Position</th>
+            </tr>
+        </thread>
+        <tbody>
+            {% for player in players %}
+            <tr>
+                <td>{{ player.id }}</td>
+                <td>{{ player.full_name }}</td>
+                <td>{{ player.team_name }}</td>
+                <td>{{ player.position }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
     <!-- footer -->
     <footer>
         <p>&copy; 2025 Courtside Predictor - Built with Flask</p>

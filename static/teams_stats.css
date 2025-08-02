@@ -55,6 +55,7 @@ p {
     margin: 5px 0;
 }
 
+/* team info styling */
 .team-info {
     display: flex;
     flex-direction: column;
@@ -78,7 +79,7 @@ p {
     text-align: right;
 }
 
-
+/* table styling */
 table {
     width: 100%;
     border-collapse: collapse;

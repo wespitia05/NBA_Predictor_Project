@@ -1,10 +1,14 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import pandas as pd
 import os
 # import list of nba teams
 from nba_api.stats.static import teams
 # import endpoints to retrieve team info
 from nba_api.stats.endpoints import teaminfocommon
+# import list of NBA players
+from nba_api.stats.static import players
+# import endpoints to retrieve player stats
+from nba_api.stats.endpoints import playercareerstats, commonplayerinfo
 
 # creates the flask app
 app = Flask(__name__)
@@ -100,7 +104,24 @@ def team_stats(team_abbr):
 # route for the players page
 @app.route('/players')
 def players_page():
-    return render_template('players.html') # this will look in the templates/ folder
+    # get all active NBA players
+    all_players = players.get_active_players()
+    
+    # select the first 30 players (in the order returned by the API)
+    selected_players = all_players[:30]
+    
+    # extract relevant fields
+    player_data = []
+    for player in selected_players:
+        player_data.append({
+            'full_name': player['full_name'],
+            'team_id': player.get('team_id', 'N/A'),
+            'team_name': player.get('team_name', 'N/A'),
+            'position': player.get('position', 'N/A'),
+            'id': player['id']
+        })
+
+    return render_template('players.html', players=player_data)
 
 # route for the teams page
 @app.route('/teams')
