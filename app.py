@@ -104,21 +104,41 @@ def team_stats(team_abbr):
 # route for the players page
 @app.route('/players')
 def players_page():
-    # get all active NBA players
+    # calls api to return list of all active nba players
     all_players = players.get_active_players()
-    
-    # select the first 30 players (in the order returned by the API)
-    selected_players = all_players[:30]
-    
-    # extract relevant fields
+    # first 5 players (takes longer to load with more)
+    selected_players = all_players[:5] 
+
+    # initialize empty list to store player data
     player_data = []
+
+    # loops through each selected player to fetch info
     for player in selected_players:
+        player_id = player['id'] # get id
+        full_name = player['full_name'] # get full name
+
+        # try block in case api fails
+        try:
+            # get player profile info
+            info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
+            # retrieves first dataframe
+            df = info.get_data_frames()[0]
+
+            # extract team name and position
+            team_name = df.at[0, 'TEAM_NAME']
+            position = df.at[0, 'POSITION']
+        
+        # in case there's an error, display msg
+        except Exception as e:
+            team_name = "N/A"
+            position = "N/A"
+
+        # otherwise add player data into list
         player_data.append({
-            'full_name': player['full_name'],
-            'team_id': player.get('team_id', 'N/A'),
-            'team_name': player.get('team_name', 'N/A'),
-            'position': player.get('position', 'N/A'),
-            'id': player['id']
+            'id': player_id,
+            'full_name': full_name,
+            'team_name': team_name,
+            'position': position
         })
 
     return render_template('players.html', players=player_data)
