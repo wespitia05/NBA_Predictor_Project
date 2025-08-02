@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import os
 # import list of nba teams
@@ -142,6 +142,45 @@ def players_page():
         })
 
     return render_template('players.html', players=player_data)
+
+# routes for load players button
+@app.route('/load_players')
+def load_more_players():
+    # get how many players we've already loaded (default is 0)
+    offset = int(request.args.get('offset', 0))
+
+    # get all current NBA players
+    all_players = players.get_active_players()
+
+    # get the next 5 players
+    selected_players = all_players[offset:offset + 5]
+
+    player_data = []
+
+    for player in selected_players:
+        player_id = player['id']
+        full_name = player['full_name']
+
+        try:
+            # get extra info like team and position
+            info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
+            df = info.get_data_frames()[0]
+            team_name = df.at[0, 'TEAM_NAME']
+            position = df.at[0, 'POSITION']
+        except Exception:
+            team_name = "N/A"
+            position = "N/A"
+
+        # add to our list of player info
+        player_data.append({
+            'id': player_id,
+            'full_name': full_name,
+            'team_name': team_name,
+            'position': position
+        })
+
+    # send the list of players back to JavaScript
+    return jsonify(player_data)
 
 # route for the teams page
 @app.route('/teams')
