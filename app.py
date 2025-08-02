@@ -100,7 +100,7 @@ def team_stats(team_abbr):
 # route for the players page
 @app.route('/players')
 def players_page():
-    return "<h1>Players page coming soon!</h1>"
+    return render_template('players.html') # this will look in the templates/ folder
 
 # route for the teams page
 @app.route('/teams')

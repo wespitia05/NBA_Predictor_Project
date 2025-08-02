@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA Predictor Project Players Page</title>
+    <!-- link to the css file in static folder -->
+    <link rel="stylesheet" href="{{url_for('static', filename='players.css')}}">
+    <!-- link to the js file in the static folder -->
+    <script src="{{url_for('static', filename='players.js')}}"></script>
+</head>
+<body>
+    <header>
+        <!-- nba logo -->
+        <img src="{{ url_for('static', filename='images/nba-logo.png') }}" alt="NBA Logo" class="logo">
+
+        <!-- wrap title and description in container-->
+        <div class="header-text">
+            <!-- page title -->
+            <h1>Players</h1>
+            <!-- page description -->
+            <p>Select or search for your player below</p>
+            <!-- buttons for east/west conference -->
+            <!-- buttons -->
+            <div class="button-container">
+                <a href="#" class="conf-button active">Eastern Conference</a>
+                <a href="#" class="conf-button">Western Conference</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- search bar -->
+    <div class="search-bar">
+        <form id="search-bar" action="/player_stats" method="get">
+            <input type="text" name="player" id="playerInput" placeholder="Search for a player..." required>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    
+    <!-- footer -->
+    <footer>
+        <p>&copy; 2025 Courtside Predictor - Built with Flask</p>
+    </footer>
+</body>
+</html>

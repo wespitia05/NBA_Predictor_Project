@@ -1,0 +1,129 @@
+html, body {
+    height: 100%;  
+    margin: 0;  
+}
+
+/* overall page styling */
+body {
+    font-family: 'Jura', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+    text-align: center;
+    background: linear-gradient(to bottom right, #2b5ec3, #c8102e);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    color: #fff;
+    padding: 20px;
+    overflow-x: hidden;
+}
+
+/* styling for the nba logo */
+header {
+    display: flex;
+    padding: 10px 20px;
+    gap: 30vw;
+    .logo {
+        width: 80px;
+        height: auto;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+    .logo:hover {
+        transform: scale(1.2);
+    }
+}
+
+/* main title styling */
+.header-text {
+    text-align: center;
+    justify-content: space-between;
+}
+
+h1 {
+    font-size: 48px;
+    color: #98b7f5;
+    margin: 20px 0;
+}
+
+/* description text styling */
+p {
+    font-size: 18px;
+    color: #fff;
+    margin: 5px 0;
+}
+
+/* conference button styling */
+.button-container {
+    margin-top: 15px;
+    display: flex;
+    gap: 15px; /* space between buttons */
+}
+
+.conf-button {
+    background-color: #0033a0;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    transition: background-color 0.3s, transform 0.3s ease;
+}
+
+.conf-button:hover {
+    background-color: #c8102e;
+    transform: scale(1.05);
+}
+
+.conf-button.active {
+    background-color: #c8102e;
+}
+
+/* search bar styling */
+.search-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -20%;
+}
+
+.search-bar form {
+    display: flex;
+    gap: 10px;
+}
+
+.search-bar input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 85vw;
+}
+
+/* search bar button styling */
+.search-bar button {
+    padding: 10px 16px;
+    font-size: 16px;
+    border: none;
+    background-color: #d32f2f;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-bar button:hover {
+    background-color: #b71c1c;
+}
+
+/* footer styling */
+footer {
+    margin-top: 50px;
+    font-size: 14px;
+    color: #fff;
+    padding: 50px 0;
+}
