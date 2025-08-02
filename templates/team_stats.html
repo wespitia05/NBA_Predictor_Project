@@ -59,13 +59,23 @@
         </tbody>
     </table>
 
-    <h3>Averages (Last 20 Games)</h3>
-    <ul>
-        <li>Points: {{ avg_points | round(2) }}</li>
-        <li>Rebounds: {{ avg_rebounds | round(2) }}</li>
-        <li>Assists: {{ avg_assists | round(2) }}</li>
-        <li>Turnovers: {{ avg_turnovers | round(2) }}</li>
-    </ul>
-
+    <table>
+        <thread>
+            <tr>
+                <th>Average Points</th>
+                <th>Average Rebound</th>
+                <th>Average Assists</th>
+                <th>Average Turnovers</th>
+            </tr>
+        </thread>
+        <tbody>
+            <tr>
+                <th>{{ avg_points | round(2) }}</th>
+                <th>{{ avg_rebounds | round(2) }}</th>
+                <th>{{ avg_assists | round(2) }}</th>
+                <th>{{ avg_turnovers | round(2) }}</th>
+            </tr>
+        </tbody>
+    </table>
 </body>
 </html>
