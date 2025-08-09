@@ -104,10 +104,20 @@ def team_stats(team_abbr):
 # route for the players page
 @app.route('/players')
 def players_page():
+    # read input from the search bar
+    query = (request.args.get('q') or "").strip()
+
     # calls api to return list of all active nba players
     all_players = players.get_active_players()
+
+    # if there is a search, filter by name otherwise use all
+    if query:
+        filtered = [p for p in all_players if query.lower() in p['full_name'].lower()]
+    else:
+        filtered = all_players
+
     # first 5 players (takes longer to load with more)
-    selected_players = all_players[:5] 
+    selected_players = filtered[:5] 
 
     # initialize empty list to store player data
     player_data = []
@@ -141,7 +151,7 @@ def players_page():
             'position': position
         })
 
-    return render_template('players.html', players=player_data)
+    return render_template('players.html', players=player_data, query=query)
 
 # routes for load players button
 @app.route('/load_players')
@@ -149,11 +159,20 @@ def load_more_players():
     # get how many players we've already loaded (default is 0)
     offset = int(request.args.get('offset', 0))
 
+    # read input from the search bar
+    query = (request.args.get('q') or "").strip()
+
     # get all current NBA players
     all_players = players.get_active_players()
 
+    # if there is a search, filter by name otherwise use all
+    if query:
+        filtered = [p for p in all_players if query.lower() in p['full_name'].lower()]
+    else:
+        filtered = all_players
+
     # get the next 5 players
-    selected_players = all_players[offset:offset + 5]
+    selected_players = filtered[offset:offset + 5]
 
     player_data = []
 

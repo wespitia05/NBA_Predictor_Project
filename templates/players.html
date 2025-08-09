@@ -22,11 +22,18 @@
             <p>Select or search for your player below</p>
             <!-- search bar -->
             <div class="search-bar">
-                <form id="search-bar" action="/player_stats" method="get">
-                    <input type="text" name="player" id="playerInput" placeholder="Search for a player..." required>
-                    <button type="submit">Search</button>
+                <form id="search-bar" action="{{ url_for('players_page') }}" method="get">
+                  <input
+                    type="text"
+                    name="q"
+                    id="playerInput"
+                    placeholder="Search for a player..."
+                    value="{{ query or '' }}"
+                    required
+                  >
+                  <button type="submit">Search</button>
                 </form>
-            </div>
+              </div>
         </div>
     </header>
 
@@ -54,7 +61,8 @@
 
     <!-- button to load more players -->
     <div class="load-player-button-container">
-        <a href="#" class="load-players-button">Load More Players</a>
+        <!-- store current query so JS can request more of the same search -->
+        <a href="#" class="load-players-button" data-query="{{ query or '' }}">Load More Players</a>
     </div>
 
     <!-- footer -->

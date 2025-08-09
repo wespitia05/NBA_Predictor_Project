@@ -6,6 +6,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const loadButton = document.querySelector(".load-players-button");
     const tableBody = document.querySelector("table tbody");
 
+    // read current search query (empty string if none)
+    const currentQuery = loadButton?.dataset?.query || "";
+
     // when the load more players button is clicked
     loadButton.addEventListener("click", function (e) {
         // stops from reloading page
@@ -14,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
         loadButton.textContent = "Loading...";
 
         // ask server for next 5 players
-        fetch(`/load_players?offset=${offset}`).then(response => response.json()).then(data => {
+        fetch(`/load_players?offset=${offset}&q=${encodedURIComponent(currentQuery)}`).then(response => response.json()).then(data => {
             // for each player we get back
             data.forEach(player => {
                 // create new row in the table
@@ -30,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             // update how many players we've loaded
-            offset += 5;
+            offset += data.length;
 
             // change button text back to normal
             loadButton.textContent = "Load More Players"
