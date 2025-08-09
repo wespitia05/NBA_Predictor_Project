@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
         loadButton.textContent = "Loading...";
 
         // ask server for next 5 players
-        fetch(`/load_players?offset=${offset}&q=${encodedURIComponent(currentQuery)}`).then(response => response.json()).then(data => {
+        fetch(`/load_players?offset=${offset}&q=${encodeURIComponent(currentQuery)}`).then(response => response.json()).then(data => {
             // for each player we get back
             data.forEach(player => {
                 // create new row in the table
