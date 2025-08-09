@@ -26,9 +26,17 @@ def predict_page():
     return "<h1>Predict page coming soon!</h1>"
 
 # route for the players statistics page
-@app.route('/player_stats')
-def players_stats_page():
-    return "<h1>Player statistics page coming soon!</h1>"
+@app.route('/player_stats/<int:player_id>')
+def players_stats_page(player_id):
+    try:
+        # get player info from the nba api
+        info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
+        df = info.get_data_frames()[0]
+        player_name = df.at[0, 'DISPLAY_FIRST_LAST']
+    except Exception:
+        player_name = "Unknown Player"
+
+    return render_template('player_stats.html', player_name=player_name)
 
 # route for the teams statistics page
 @app.route('/team/<team_abbr>')
