@@ -10,14 +10,21 @@
     <script src="{{url_for('static', filename='player_stats.js')}}"></script>
 </head>
 <body>
-    <h1>{{ player_name }}</h1>
+    <header>
+        <!-- wrap player name and headshot in container-->
+        <div class="player-name-photo">
+            <!-- headshot -->
+            <img 
+                class="player-photo"
+                src="{{ headshot_url }}"
+                alt="{{ player_name }} headshot"
+                onerror="this.onerror=null; this.src='https://cdn.nba.com/headshots/nba/latest/260x190/{{ player_id }}.png';"
+            />
+            <!-- player name -->
+            <h1>{{ player_name }}</h1>
+        </div>
 
-    <img 
-        class="player-photo"
-        src="{{ headshot_url }}"
-        alt="{{ player_name }} headshot"
-        onerror="this.onerror=null; this.src='https://cdn.nba.com/headshots/nba/latest/260x190/{{ player_id }}.png';"
-    />
+    </header>
 
     <!-- footer -->
     <footer>

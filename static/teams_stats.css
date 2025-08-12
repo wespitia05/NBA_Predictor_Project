@@ -25,16 +25,6 @@ header {
     display: flex;
     padding: 10px 20px;
     justify-content: space-between;
-    .logo {
-        width: 80px;
-        height: auto;
-        margin-bottom: 20px;
-        transition: transform 0.3s ease;
-        cursor: pointer;
-    }
-    .logo:hover {
-        transform: scale(1.2);
-    }
 }
 
 /* main title styling */
@@ -59,7 +49,6 @@ p {
 .team-info {
     display: flex;
     flex-direction: column;
-    align-items: center;
     font-size: 16px;
     gap: 6px;
 }

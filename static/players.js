@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 row.innerHTML = `
                     <td>${player.id}</td>
                     <td>
-                        <a href="/player_stats/{{ player.id }}" class="player-link">
+                        <a href="/player_stats/${player.id}" class="player-link">
                             ${player.full_name}
                         </a>
                     </td>
