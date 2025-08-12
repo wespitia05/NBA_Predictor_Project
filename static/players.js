@@ -24,7 +24,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${player.id}</td>
-                    <td>${player.full_name}</td>
+                    <td>
+                        <a href="/player_stats/{{ player.id }}" class="player-link">
+                            ${player.full_name}
+                        </a>
+                    </td>
                     <td>${player.team_name}</td>
                     <td>${player.position}</td>
                 `;
