@@ -35,8 +35,11 @@ def players_stats_page(player_id):
         player_name = df.at[0, 'DISPLAY_FIRST_LAST']
     except Exception:
         player_name = "Unknown Player"
+    
+    # nba headshot url
+    headshot_url = f"http://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png"
 
-    return render_template('player_stats.html', player_name=player_name)
+    return render_template('player_stats.html', player_name=player_name, headshot_url=headshot_url)
 
 # route for the teams statistics page
 @app.route('/team/<team_abbr>')

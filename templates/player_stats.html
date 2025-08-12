@@ -11,5 +11,17 @@
 </head>
 <body>
     <h1>{{ player_name }}</h1>
+
+    <img 
+        class="player-photo"
+        src="{{ headshot_url }}"
+        alt="{{ player_name }} headshot"
+        onerror="this.onerror=null; this.src='https://cdn.nba.com/headshots/nba/latest/260x190/{{ player_id }}.png';"
+    />
+
+    <!-- footer -->
+    <footer>
+        <p>&copy; 2025 Courtside Predictor - Built with Flask</p>
+    </footer>
 </body>
 </html>
