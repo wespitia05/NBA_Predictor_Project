@@ -20,8 +20,17 @@
                 alt="{{ player_name }} headshot"
                 onerror="this.onerror=null; this.src='https://cdn.nba.com/headshots/nba/latest/260x190/{{ player_id }}.png';"
             />
-            <!-- player name -->
-            <h1>{{ player_name }}</h1>
+            <div class="player-info">
+                <!-- player name -->
+                <h1>{{ player_name }}</h1>
+                <div class="player-team-info">
+                    <span>{{ team_name }}</span>
+                    <span>&nbsp;|&nbsp;</span>
+                    <span>{{ jersey }}</span>
+                    <span>&nbsp;|&nbsp;</span>
+                    <span>{{ position }}</span>
+                </div>
+            </div>
         </div>
 
     </header>

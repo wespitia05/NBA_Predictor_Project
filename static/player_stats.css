@@ -30,12 +30,8 @@ header {
 /* player name/photo styling */
 .player-name-photo {
     display: flex;
-}
-
-h1 {
-    font-size: 48px;
-    color: #98b7f5;
-    margin: 40px 0;
+    width: 100%;
+    justify-content: space-evenly;
 }
 
 .player-photo {
@@ -43,5 +39,21 @@ h1 {
     border-radius: 18px;
     box-shadow: 0 10px 24px rgba(0,0,0,0.35);
     object-fit: cover;
-    background: rgba(255,255,255,0.1);
+    transition: transform 0.3s ease;
+}
+
+.player-photo:hover {
+    transform: scale(1.1);
+}
+
+.player-info {
+    h1 {
+        font-size: 48px;
+        color: #98b7f5;
+        margin: 0 0;
+    }
+    .player-team-info {
+        margin-top: 10px;
+        font-size: 24px;
+    }
 }

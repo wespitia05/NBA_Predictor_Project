@@ -33,13 +33,24 @@ def players_stats_page(player_id):
         info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
         df = info.get_data_frames()[0]
         player_name = df.at[0, 'DISPLAY_FIRST_LAST']
+        team_name   = df.at[0, 'TEAM_NAME'] or "Free Agent"
+        jersey      = df.at[0, 'JERSEY'] or "N/A"
+        position    = df.at[0, 'POSITION'] or "N/A"
     except Exception:
         player_name = "Unknown Player"
+        team_name   = "N/A"
+        jersey      = "N/A"
+        position    = "N/A"
     
     # nba headshot url
     headshot_url = f"http://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png"
 
-    return render_template('player_stats.html', player_name=player_name, headshot_url=headshot_url)
+    return render_template('player_stats.html', 
+                           player_name=player_name, 
+                           headshot_url=headshot_url,
+                           team_name=team_name,
+                           jersey=jersey,
+                           position=position)
 
 # route for the teams statistics page
 @app.route('/team/<team_abbr>')
