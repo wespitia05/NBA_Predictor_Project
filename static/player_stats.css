@@ -50,10 +50,17 @@ header {
     h1 {
         font-size: 48px;
         color: #98b7f5;
-        margin: 0 0;
     }
     .player-team-info {
         margin-top: 10px;
         font-size: 24px;
     }
+}
+
+/* footer styling */
+footer {
+    margin-top: 50px;
+    font-size: 14px;
+    color: #fff;
+    padding: 50px 0;
 }

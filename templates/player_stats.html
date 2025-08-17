@@ -32,8 +32,15 @@
                 </div>
             </div>
         </div>
-
     </header>
+
+    <!-- player info/averages -->
+    <div class="player-averages">
+        <div><strong>PPG:</strong> {{ '%.2f' % ppg if ppg is not none else 'N/A' }}</div>
+        <div><strong>RPG:</strong> {{ '%.2f' % rpg if ppg is not none else 'N/A' }}</div>
+        <div><strong>APG:</strong> {{ '%.2f' % apg if apg is not none else 'N/A' }}</div>
+        <div><strong>TPG:</strong> {{ '%.2f' % tpg if tpg is not none else 'N/A' }}</div>
+    </div>
 
     <!-- footer -->
     <footer>

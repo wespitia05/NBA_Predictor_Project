@@ -8,12 +8,78 @@ from nba_api.stats.endpoints import teaminfocommon
 # import list of NBA players
 from nba_api.stats.static import players
 # import endpoints to retrieve player stats
-from nba_api.stats.endpoints import playercareerstats, commonplayerinfo
+from nba_api.stats.endpoints import playercareerstats, commonplayerinfo, playergamelog
 
 # creates the flask app
 app = Flask(__name__)
 
 # print(df.columns)
+
+# this function will get the player averages for ppg, tpg and apg for their current team
+def get_player_average(player_id):
+    try:
+        # find out players current team using id and abbr
+        info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
+        df_info = info.get_data_frames()[0]
+
+        # extracts players current team id and abbr from profile info
+        team_id = df_info.at[0, 'TEAM_ID']
+        team_abbr = df_info.at[0, 'TEAM_ABBREVIATION']
+
+        # if player does not have a current team, return none
+        if not team_id:
+            return None, None, None
+
+        # pull game logs for a past 5 seasons
+        seasons = ['2024-25', '2023-24', '2022-23', '2021-22', '2020-21']
+
+        # this list will hold the dataframes from each season
+        frames = []
+
+        # loop through each season
+        for s in seasons:
+            try:
+                # fetch players game log
+                gamelog = playergamelog.PlayerGameLog(player_id=player_id, season=s)
+                df_gamelog = gamelog.get_data_frames()[0]
+
+                # appends it if data exists
+                if df_gamelog is not None and not df_gamelog.empty:
+                    frames.append(df_gamelog)
+            except Exception:
+                continue
+        
+        # if no game logs were collected, return empty value
+        if not frames:
+            return None, None, None
+        
+        # combines all dataframes from different seasons into one big dataset
+        logs = pd.concat(frames, ignore_index=True)
+
+        # keep only games player played for the current team
+        team_id_col = 'TEAM_ID' if 'TEAM_ID' in logs.columns else ('Team_ID' if 'Team_ID' in logs.columns else None)
+        
+        # filters logs so you only keep games where the player was on their current team
+        if team_id_col:
+            logs = logs[logs[team_id_col] == team_id]
+        else:
+            logs = logs[logs['MATCHUP'].str.contains(team_abbr, na=False)]
+
+        # if there are no games for the curretn team, return empty values
+        if logs.empty:
+            return None, None, None
+        
+        # compute the averages
+        ppg = float(logs['PTS'].mean()) if 'PTS' in logs.columns else None
+        rpg = float(logs['REB'].mean()) if 'REB' in logs.columns else None
+        apg = float(logs['AST'].mean()) if 'AST' in logs.columns else None
+        tpg = float(logs['TOV'].mean()) if 'TOV' in logs.columns else None
+        
+        # returns the averages as a tuple
+        return ppg, rpg, apg, tpg
+    
+    except Exception:
+        return None, None, None, None
 
 # route for the homepage
 @app.route('/')
@@ -45,12 +111,19 @@ def players_stats_page(player_id):
     # nba headshot url
     headshot_url = f"http://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png"
 
+    # compute averages for the current team
+    ppg, rpg, apg, tpg = get_player_average(player_id)
+
     return render_template('player_stats.html', 
                            player_name=player_name, 
                            headshot_url=headshot_url,
                            team_name=team_name,
                            jersey=jersey,
-                           position=position)
+                           position=position,
+                           ppg=ppg,
+                           rpg=rpg,
+                           apg=apg,
+                           tpg=tpg)
 
 # route for the teams statistics page
 @app.route('/team/<team_abbr>')
