@@ -46,6 +46,7 @@ header {
     transform: scale(1.1);
 }
 
+/* team / jersey number / position styling */
 .player-info {
     h1 {
         font-size: 48px;
@@ -55,6 +56,42 @@ header {
         margin-top: 10px;
         font-size: 24px;
     }
+}
+
+/* player average stats styling */
+.stat-grid {
+    align-self: center;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid rgb(255, 255, 255);
+  }
+  
+.stat-card {
+    color: #fff;
+    display: grid;
+    padding: 20px 40px;
+    box-shadow: inset -1px 0 0 rgba(255,255,255);
+}
+
+.stat-card:last-child {
+    box-shadow: none;
+}
+
+.stat-label {
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+}
+
+.stat-value {
+    margin-top: 6px;
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1;
 }
 
 /* footer styling */
