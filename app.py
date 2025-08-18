@@ -9,6 +9,8 @@ from nba_api.stats.endpoints import teaminfocommon
 from nba_api.stats.static import players
 # import endpoints to retrieve player stats
 from nba_api.stats.endpoints import playercareerstats, commonplayerinfo, playergamelog
+# import datetime
+from datetime import datetime, UTC
 
 # creates the flask app
 app = Flask(__name__)
@@ -102,17 +104,47 @@ def players_stats_page(player_id):
         team_name   = df.at[0, 'TEAM_NAME'] or "Free Agent"
         jersey      = df.at[0, 'JERSEY'] or "N/A"
         position    = df.at[0, 'POSITION'] or "N/A"
+        height = df.at[0, 'HEIGHT']
+        weight = df.at[0, 'WEIGHT']
+        college = df.at[0, 'SCHOOL'] or df.at[0, 'LAST_AFFILIATION']
+        country = df.at[0, 'COUNTRY']
+        birthdate = df.at[0, 'BIRTHDATE']
+        experience = df.at[0, 'SEASON_EXP']
+        draft_year = df.at[0, 'DRAFT_YEAR']
+        draft_round = df.at[0, 'DRAFT_ROUND']
+        draft_pick = df.at[0, 'DRAFT_NUMBER']
     except Exception:
         player_name = "Unknown Player"
         team_name   = "N/A"
         jersey      = "N/A"
         position    = "N/A"
+        height      = "N/A"
+        weight      = "N/A"
+        college     = "N/A"
+        country     = "N/A"
+        birthdate   = "N/A"
+        experience  = "N/A"
+        draft_year  = "N/A"
+        draft_round = "N/A"
+        draft_pick  = "N/A"
     
     # nba headshot url
     headshot_url = f"http://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png"
 
     # compute averages for the current team
     ppg, rpg, apg, tpg = get_player_average(player_id)
+
+    # format birthday and age
+    dob = datetime.strptime(birthdate.split("T")[0], "%Y-%m-%d")
+    birthdate = dob.strftime("%B %d, %Y")
+    today = datetime.now(UTC).date()
+    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+    # format draft information as one
+    if draft_year.lower() == "undrafted":
+        draft_text = "Undrafted"
+    else:
+        draft_text = f"{draft_year} R{draft_round} Pick {draft_pick}"
 
     return render_template('player_stats.html', 
                            player_name=player_name, 
@@ -123,7 +155,15 @@ def players_stats_page(player_id):
                            ppg=ppg,
                            rpg=rpg,
                            apg=apg,
-                           tpg=tpg)
+                           tpg=tpg,
+                           height=height,
+                           weight=weight,
+                           college=college,
+                           country=country,
+                           birthdate=birthdate,
+                           age=age,
+                           draft_text=draft_text,
+                           experience=experience)
 
 # route for the teams statistics page
 @app.route('/team/<team_abbr>')

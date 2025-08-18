@@ -62,7 +62,7 @@ header {
 .stat-grid {
     align-self: center;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(8, 1fr);
     gap: 10px;
     border-radius: 8px;
     overflow: hidden;
