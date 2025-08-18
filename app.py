@@ -129,23 +129,35 @@ def players_stats_page(player_id):
         draft_pick  = "N/A"
     
     # nba headshot url
-    headshot_url = f"http://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png"
+    headshot_url = f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png"
 
     # compute averages for the current team
     ppg, rpg, apg, tpg = get_player_average(player_id)
 
     # format birthday and age
-    dob = datetime.strptime(birthdate.split("T")[0], "%Y-%m-%d")
-    birthdate = dob.strftime("%B %d, %Y")
-    today = datetime.now(UTC).date()
-    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    try:
+        dob = datetime.strptime(birthdate.split("T")[0], "%Y-%m-%d")
+        birthdate = dob.strftime("%B %d, %Y")
+        today = datetime.now(UTC).date()
+        age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    except Exception:
+        birthdate = "N/A"
+        age = "N/A"
 
     # format draft information as one
-    if draft_year.lower() == "undrafted":
+    year_str  = str(draft_year).strip() if draft_year is not None else ""
+    round_str = str(draft_round).strip() if draft_round is not None else ""
+    pick_str  = str(draft_pick).strip() if draft_pick is not None else ""
+
+    if year_str.lower() == "undrafted" or year_str == "" or year_str == "0":
         draft_text = "Undrafted"
     else:
-        draft_text = f"{draft_year} R{draft_round} Pick {draft_pick}"
-
+        # if round/pick missing or "0", just show the year
+        if round_str in ("", "0") or pick_str in ("", "0"):
+            draft_text = year_str
+        else:
+            draft_text = f"{year_str} R{round_str} Pick {pick_str}"
+            
     return render_template('player_stats.html', 
                            player_name=player_name, 
                            headshot_url=headshot_url,
