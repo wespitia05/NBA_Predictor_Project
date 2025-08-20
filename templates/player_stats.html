@@ -37,20 +37,24 @@
     <!-- player info/averages -->
     <section class="stat-grid">
         <div class="stat-card">
-            <div class="stat-label">PPG</div>
-            <div class="stat-value">{{ '%.2f' % ppg if ppg is not none else 'N/A' }}</div>
+            <div class="sub-one">
+                <div class="stat-label">PPG</div>
+                <div class="stat-value">{{ '%.2f' % ppg if ppg is not none else 'N/A' }}</div>
+            </div>
+            <div class="sub-two">
+                <div class="stat-label">RPG</div>
+                <div class="stat-value">{{ '%.2f' % rpg if rpg is not none else 'N/A' }}</div>
+            </div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">RPG</div>
-            <div class="stat-value">{{ '%.2f' % rpg if rpg is not none else 'N/A' }}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">APG</div>
-            <div class="stat-value">{{ '%.2f' % apg if apg is not none else 'N/A' }}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">TPG</div>
-            <div class="stat-value">{{ '%.2f' % tpg if tpg is not none else 'N/A' }}</div>
+            <div class="sub-one">
+                <div class="stat-label">APG</div>
+                <div class="stat-value">{{ '%.2f' % apg if apg is not none else 'N/A' }}</div>
+            </div>
+            <div class="sub-two">
+                <div class="stat-label">TPG</div>
+                <div class="stat-value">{{ '%.2f' % tpg if tpg is not none else 'N/A' }}</div>
+            </div>
         </div>
         <div class="stat-card">
             <div class="sub-one">
