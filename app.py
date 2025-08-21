@@ -309,6 +309,12 @@ def team_stats(team_abbr):
     conf_rank = team_data.loc[0, 'CONF_RANK']
     div_rank = team_data.loc[0, 'DIV_RANK']
 
+    # this function turns team name into images/team_name_logo.png
+    def build_logo_filename(team_name: str) -> str:
+        return f"images/{team_name.lower().replace(' ', '_')}_logo.png"
+
+    logo_filename = build_logo_filename(team_name)
+
     if team_games.empty:
         return f"<h1>No data found for team: {team_abbr}</h1>"
 
@@ -348,7 +354,8 @@ def team_stats(team_abbr):
                            avg_points=avg_points,
                            avg_rebounds=avg_rebounds,
                            avg_assists=avg_assists,
-                           avg_turnovers=avg_turnovers)
+                           avg_turnovers=avg_turnovers,
+                           logo_filename=logo_filename)
 
 # route for the players page
 @app.route('/players')

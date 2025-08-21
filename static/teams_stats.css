@@ -20,11 +20,16 @@ body {
     overflow-x: hidden;
 }
 
-/* styling for the nba logo */
+/* styling for header */
 header {
     display: flex;
-    padding: 10px 20px;
     justify-content: space-between;
+    align-items: center;
+}
+
+/* logo styling */
+.team-logo img {
+    width: 250px;
 }
 
 /* main title styling */
@@ -35,14 +40,6 @@ header {
 h1 {
     font-size: 48px;
     color: #98b7f5;
-    margin: 40px 0;
-}
-
-/* description text styling */
-p {
-    font-size: 18px;
-    color: #fff;
-    margin: 5px 0;
 }
 
 /* team info styling */
@@ -50,13 +47,12 @@ p {
     display: flex;
     flex-direction: column;
     font-size: 16px;
-    gap: 6px;
 }
 
 .team-info p {
     display: flex;
     justify-content: space-between;
-    width: 15vw;
+    width: 17vw;
 }
 
 .team-info .label {
@@ -79,4 +75,12 @@ th, td {
     padding: 0.5rem;
     text-align: center;
     border: 1px solid #ccc;
+}
+
+/* footer styling */
+footer {
+    margin-top: 50px;
+    font-size: 14px;
+    color: #fff;
+    padding: 50px 0;
 }

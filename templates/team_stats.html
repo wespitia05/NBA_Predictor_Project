@@ -9,12 +9,15 @@
 </head>
 <body>
     <header>
-        <!-- wrap title and description in container-->
+        <!-- wrap logo in container -->
+        <div class="team-logo">
+            <img src="{{ url_for('static', filename=logo_filename) }}"
+                 alt="{{ team_name }} logo">
+        </div>
+        <!-- wrap title in container -->
         <div class="header-text">
             <!-- page title -->
             <h1>{{ team_name }}</h1>
-            <!-- page description -->
-            <p>Last 20 Games</p>
         </div>
 
         <!-- wrap basic team info in container -->
@@ -27,52 +30,66 @@
             <p><span class="label">Division Rank:</span> <span class="value">{{ div_rank }}</span></p>
         </div>
     </header>
-    <table>
-        <thead>
-            <tr>
-                <th>Game Date</th>
-                <th>Opponent</th>
-                <th>Home/Away</th>
-                <th>Points</th>
-                <th>Rebounds</th>
-                <th>Assists</th>
-                <th>Turnovers</th>
-                <th>Win</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for game in games %}
-            <tr>
-                <td>{{ game['Game Date'] }}</td>
-                <td>{{ game['Opponent'] }}</td>
-                <td>{{ game['Location'] }}</td>
-                <td>{{ game['Points'] }}</td>
-                <td>{{ game['Rebounds'] }}</td>
-                <td>{{ game['Assists'] }}</td>
-                <td>{{ game['Turnovers'] }}</td>
-                <td>{{ 'Yes' if game['Win'] == 1 else 'No' }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 
-    <table>
-        <thread>
-            <tr>
-                <th>Average Points</th>
-                <th>Average Rebound</th>
-                <th>Average Assists</th>
-                <th>Average Turnovers</th>
-            </tr>
-        </thread>
-        <tbody>
-            <tr>
-                <th>{{ avg_points | round(2) }}</th>
-                <th>{{ avg_rebounds | round(2) }}</th>
-                <th>{{ avg_assists | round(2) }}</th>
-                <th>{{ avg_turnovers | round(2) }}</th>
-            </tr>
-        </tbody>
-    </table>
+    <!-- this table will display stats for each of the last 20 games -->
+    <section class="last-20-games">
+        <h2>Last 20 Games</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Game Date</th>
+                    <th>Opponent</th>
+                    <th>Home/Away</th>
+                    <th>Points</th>
+                    <th>Rebounds</th>
+                    <th>Assists</th>
+                    <th>Turnovers</th>
+                    <th>Win</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for game in games %}
+                <tr>
+                    <td>{{ game['Game Date'] }}</td>
+                    <td>{{ game['Opponent'] }}</td>
+                    <td>{{ game['Location'] }}</td>
+                    <td>{{ game['Points'] }}</td>
+                    <td>{{ game['Rebounds'] }}</td>
+                    <td>{{ game['Assists'] }}</td>
+                    <td>{{ game['Turnovers'] }}</td>
+                    <td>{{ 'Yes' if game['Win'] == 1 else 'No' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- this table will display the average stats from the last 20 games -->
+    <section class="average-stats-20-games">
+        <h2>Team Average Stats Last 20 Games</h2>
+        <table>
+            <thread>
+                <tr>
+                    <th>Average Points</th>
+                    <th>Average Rebound</th>
+                    <th>Average Assists</th>
+                    <th>Average Turnovers</th>
+                </tr>
+            </thread>
+            <tbody>
+                <tr>
+                    <th>{{ avg_points | round(2) }}</th>
+                    <th>{{ avg_rebounds | round(2) }}</th>
+                    <th>{{ avg_assists | round(2) }}</th>
+                    <th>{{ avg_turnovers | round(2) }}</th>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- footer -->
+    <footer>
+        <p>&copy; 2025 Courtside Predictor - Built with Flask</p>
+    </footer>
 </body>
 </html>
