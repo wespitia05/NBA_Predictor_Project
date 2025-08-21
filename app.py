@@ -157,7 +157,108 @@ def players_stats_page(player_id):
             draft_text = year_str
         else:
             draft_text = f"{year_str} R{round_str} Pick {pick_str}"
-            
+
+    # this function will get the gamelogs for this season, if not then last season
+    def fetch_recent_games(player_id):
+        seasons = ["2024-25", "2023-24"]
+        dfs = [] # dataframes collected here
+
+        # this for loop will iterate through each season in seasons
+        for season in seasons:
+            # this for loop will iterate through the type of season
+            for season_type in ("Playoffs", "Regular Season"):
+                try:
+                    # asks api for players log for the given season and type
+                    gl = playergamelog.PlayerGameLog(
+                        player_id=player_id,
+                        season=season,
+                        season_type_all_star=season_type
+                    )
+
+                    # the first dataframe returned has the logs
+                    df = gl.get_data_frames()[0]
+
+                    # if we got actual data we save it
+                    if df is not None and not df.empty:
+                        # add season type column if it doesnt exist (so we know if it was playoffs or regular)
+                        if "SEASON_TYPE" not in df.columns:
+                            df = df.copy()
+                            df["SEASON_TYPE"] = season_type
+                        dfs.append(df)
+                except Exception as e:
+                    print(f"[DEBUG] Error fetching {season} {season_type}: {e}")
+
+        # any game logs collected we combine into one dataframe
+        if dfs:
+            combined = pd.concat(dfs, ignore_index=True)
+
+            # drop duplicate games in case api returns overlaps
+            if "GAME_ID" in combined.columns:
+                combined = combined.drop_duplicates(subset=["GAME_ID"])
+
+            return combined
+
+        # if nothing worked above, we try calling without specifying season type
+        try:
+            gl = playergamelog.PlayerGameLog(player_id=player_id)
+            df = gl.get_data_frames()[0]
+            if df is not None and not df.empty:
+                return df
+        except Exception:
+            pass
+
+        # return none if neither method works
+        return None
+    
+    games_df = fetch_recent_games(player_id)
+
+    # default values
+    player_recent_games = []
+
+    if games_df is not None and not games_df.empty:
+        # converts gamed ate column into real datetime objects
+        games_df['GAME_DATE_PARSED'] = pd.to_datetime(
+            games_df['GAME_DATE'], format='%b %d, %Y', errors='coerce'
+        )
+
+        # if more than half the rows failed to parse try better conversion
+        if games_df['GAME_DATE_PARSED'].isna().mean() > 0.5:
+            games_df['GAME_DATE_PARSED'] = pd.to_datetime(
+                games_df['GAME_DATE'].astype(str).str.strip(), errors='coerce'
+            )
+
+        # sort games from newest to oldest (keep recent 5)
+        recent_five_games = (
+            games_df.sort_values('GAME_DATE_PARSED', ascending=False, na_position='last')
+                    .head(5)
+                    .copy()
+        )
+
+        # format decimal percentages to whole number percentages
+        if 'FG_PCT' in recent_five_games.columns:   recent_five_games['FG_PCT']   = (recent_five_games['FG_PCT']*100).round(1).astype(float)
+        if 'FG3_PCT' in recent_five_games.columns:   recent_five_games['FG3_PCT']   = (recent_five_games['FG3_PCT']*100).round(1).astype(float)
+        if 'FT_PCT' in recent_five_games.columns:   recent_five_games['FT_PCT']   = (recent_five_games['FT_PCT']*100).round(1).astype(float)
+
+        # shape into list of dicts (for HTML loop)
+        for _, row in recent_five_games.iterrows():
+            player_recent_games.append({
+                'Game Date': row['GAME_DATE'],
+                'Matchup': row['MATCHUP'],
+                "Season Type": row['SEASON_TYPE'],
+                'W/L': row['WL'],
+                'MIN': row['MIN'],
+                'PTS': row['PTS'],
+                'REB': row['REB'],
+                'AST': row['AST'],
+                'STL': row['STL'],
+                'BLK': row['BLK'],
+                'TOV': row['TOV'],
+                'FG%': row['FG_PCT'],
+                '3P%': row['FG3_PCT'],
+                'FT%': row['FT_PCT'],
+                '+/-': row['PLUS_MINUS'],
+            })
+
     return render_template('player_stats.html', 
                            player_name=player_name, 
                            headshot_url=headshot_url,
@@ -175,7 +276,8 @@ def players_stats_page(player_id):
                            birthdate=birthdate,
                            age=age,
                            draft_text=draft_text,
-                           experience=experience)
+                           experience=experience,
+                           player_recent_games=player_recent_games)
 
 # route for the teams statistics page
 @app.route('/team/<team_abbr>')

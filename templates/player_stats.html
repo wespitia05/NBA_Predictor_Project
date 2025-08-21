@@ -73,7 +73,7 @@
             </div>
             <div class="sub-two">
                 <div class="stat-label">EXPERIENCE</div>
-                <div class="stat-value">{{ experience }}</div>
+                <div class="stat-value">{{ experience }} years</div>
             </div>
         </div>
         <div class="stat-card">
@@ -97,6 +97,43 @@
             </div>
         </div>
     </section>
+
+    <!-- player last 5 games stats -->
+    {% if player_recent_games and player_recent_games|length > 0 %}
+    <section class="recent-games">
+        <h2>Last 5 Games</h2>
+        <table class="games-table">
+            <thead>
+                <tr>
+                    <th>Date</th><th>Matchup</th><th>Season Type</th><th>W/L</th><th>MIN</th>
+                    <th>PTS</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TOV</th>
+                    <th>FG%</th><th>3P%</th><th>FT%</th><th>+/-</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in player_recent_games %}
+                <tr>
+                    <td>{{ g['Game Date'] }}</td>
+                    <td>{{ g['Matchup'] }}</td>
+                    <td>{{ g['Season Type'] }}</td>
+                    <td>{{ g['W/L'] }}</td>
+                    <td>{{ g['MIN'] }}</td>
+                    <td>{{ g['PTS'] }}</td>
+                    <td>{{ g['REB'] }}</td>
+                    <td>{{ g['AST'] }}</td>
+                    <td>{{ g['STL'] }}</td>
+                    <td>{{ g['BLK'] }}</td>
+                    <td>{{ g['TOV'] }}</td>
+                    <td>{{ g['FG%'] }}</td>
+                    <td>{{ g['3P%'] }}</td>
+                    <td>{{ g['FT%'] }}</td>
+                    <td>{{ g['+/-'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% endif %}
 
     <!-- footer -->
     <footer>
