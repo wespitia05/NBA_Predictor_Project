@@ -5,11 +5,38 @@ import pandas as pd
 
 # this function will add the data for the inputted season
 def get_games_for_season(season):
-    # get all regular season games for that season
-    gamefinder = leaguegamefinder.LeagueGameFinder(season_nullable=season, season_type_nullable='Regular Season')
+    # we want both regular season and playoffs
+    all_types = ['Regular Season', 'Playoffs']
+    season_frames = []
 
-    # gets the first result for the teams games
-    games_df = gamefinder.get_data_frames()[0]
+    for stype in all_types:
+        # get games for that season and season type
+        gamefinder = leaguegamefinder.LeagueGameFinder(season_nullable=season, season_type_nullable=stype)
+
+        # gets the first result for the teams games
+        games_df = gamefinder.get_data_frames()[0]
+
+        # NEW: skip if this season type returned no rows
+        if games_df is None or games_df.empty:
+            continue
+
+        # add column to keep track of season type (regular/playoffs)
+        games_df['SEASON_TYPE'] = stype
+
+        season_frames.append(games_df)
+
+    # combine regular + playoff games into one dataframe
+    if len(season_frames) == 0:
+        # NEW: if nothing came back at all, return empty in your output shape
+        return pd.DataFrame(columns=[
+            'TEAM ID','TEAM NAME','TEAM ABBR','OPP ABBR','GAME DATE','HOME/AWAY',
+            'POINTS','REBOUNDS','ASSISTS','TURNOVERS','WIN','SEASON_TYPE'
+        ])
+
+    games_df = pd.concat(season_frames, ignore_index=True)
+
+    # NEW: drop any rows with missing matchup to avoid None.split errors
+    games_df = games_df.dropna(subset=['MATCHUP']).copy()
 
     # converts 'GAME_DATE' column of strings to datetime objects
     games_df['GAME_DATE'] = pd.to_datetime(games_df['GAME_DATE'])
@@ -60,12 +87,15 @@ def get_games_for_season(season):
             win_column.append(0)
     output_df['WIN'] = win_column
 
+    # keep track of whether it was Regular Season or Playoffs
+    output_df['SEASON_TYPE'] = games_df['SEASON_TYPE']
+
     return output_df
 
 # test function
 if __name__ == "__main__":
     # list of seasons from past 5 years
-    seasons = ["2020-21", "2021-22", "2022-23", "2023-24", "2024-25"]
+    seasons = ["2023-24", "2024-25"]
 
     all_data = pd.DataFrame()
 
@@ -75,6 +105,6 @@ if __name__ == "__main__":
         all_data = pd.concat([all_data, season_data], ignore_index=True)
     
     # save to csv
-    all_data.to_csv("nba_games_2020_to_2025.csv", index=False)
-    print("saved to nba_games_2020_to_2025.csv")
+    all_data.to_csv("nba_games_2023_to_2025.csv", index=False)
+    print("saved to nba_games_2023_to_2025.csv")
     print(all_data.head().to_string())
