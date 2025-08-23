@@ -38,6 +38,7 @@
             <thead>
                 <tr>
                     <th>Game Date</th>
+                    <th>Season Type</th>
                     <th>Opponent</th>
                     <th>Home/Away</th>
                     <th>Points</th>
@@ -51,6 +52,7 @@
                 {% for game in games %}
                 <tr>
                     <td>{{ game['Game Date'] }}</td>
+                    <td>{{ game['Season Type'] }}</td>
                     <td>{{ game['Opponent'] }}</td>
                     <td>{{ game['Location'] }}</td>
                     <td>{{ game['Points'] }}</td>

@@ -283,7 +283,7 @@ def players_stats_page(player_id):
 @app.route('/team/<team_abbr>')
 def team_stats(team_abbr):
     # load our stats data 
-    df = pd.read_csv('nba_games_2020_to_2025.csv')
+    df = pd.read_csv('nba_games_2023_to_2025.csv')
 
     # filter games for this team from the CSV
     team_games = df[df['TEAM ABBR'] == team_abbr.upper()]
@@ -333,6 +333,7 @@ def team_stats(team_abbr):
     # rename columns for clarity in html file
     games = recent_games.rename(columns={
         'GAME DATE': 'Game Date',
+        'SEASON_TYPE': 'Season Type',
         'OPP ABBR': 'Opponent',
         'HOME/AWAY': 'Location',
         'POINTS': 'Points',
