@@ -35,6 +35,9 @@ header {
 /* main title styling */
 .header-text {
     text-align: center;
+    p {
+        font-size: 23px;
+    }
 }
 
 h1 {

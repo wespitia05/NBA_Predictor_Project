@@ -343,6 +343,22 @@ def team_stats(team_abbr):
         'WIN': 'Win'
     })
 
+    # here we will extract the win-loss for the team
+    team_games['GAME DATE'] = pd.to_datetime(team_games['GAME DATE'])
+
+    # define 2024-25 season window (Oct 2024 – Jun 2025)
+    season_start = pd.Timestamp("2024-10-22")
+    season_end   = pd.Timestamp("2025-06-30")
+
+    games_2024_25 = team_games[
+        (team_games['GAME DATE'] >= season_start) &
+        (team_games['GAME DATE'] <= season_end)
+    ]
+
+    wins_2024_25 = games_2024_25['WIN'].sum()
+    losses_2024_25 = len(games_2024_25) - wins_2024_25
+    record_2024_25 = f"{int(wins_2024_25)} - {int(losses_2024_25)}"
+
     # here we will extract the roster information
     season_str = "2024-25"
     try: 
@@ -406,7 +422,8 @@ def team_stats(team_abbr):
                             avg_assists=avg_assists,
                             avg_turnovers=avg_turnovers,
                             logo_filename=logo_filename,
-                            roster=roster)
+                            roster=roster,
+                            record_2024_25=record_2024_25)
 
 # route for the players page
 @app.route('/players')
