@@ -165,6 +165,12 @@
             </a>
         </div>
         <div class="team-item">
+            <a href="{{ url_for('team_stats', team_abbr='MIN') }}">
+                <img src="{{ url_for('static', filename='images/minnesota_timberwolves_logo.png') }}" alt="Memphis Grizzlies">
+                <p>Minnesota Timberwolves</p>
+            </a>
+        </div>
+        <div class="team-item">
             <a href="{{ url_for('team_stats', team_abbr='NOP') }}">
                 <img src="{{ url_for('static', filename='images/new_orleans_pelicans_logo.png') }}" alt="New Orleans Pelicans">
                 <p>New Orleans Pelicans</p>
