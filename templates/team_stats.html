@@ -31,6 +31,56 @@
         </div>
     </header>
 
+    <!-- this section will display the roster of the selected team -->
+    <section class="roster">
+        <h2>Roster</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Jersey #</th>
+                    <th>Position</th>
+                    <th>Height</th>
+                    <th>Weight</th>
+                    <th>Birthdate</th>
+                    <th>Age</th>
+                    <th>Experience</th>
+                    <th>School</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in roster %}
+                <tr>
+                    <td>
+                        {% if p.id %}
+                            <a href="{{ url_for('players_stats_page', player_id=p.id) }}" class="player-link">
+                                {{ p.name }}
+                            </a>
+                        {% else %}
+                            {{ p.name }}
+                        {% endif %}
+                    </td>
+                    <td>{{ p.jersey }}</td>
+                    <td>{{ p.position }}</td>
+                    <td>{{ p.height }}</td>
+                    <td>{{ p.weight }}</td>
+                    <td>{{ p.birthdate }}</td>
+                    <td>{{ p.age }}</td>
+                    <td>{{ p.experience }}</td>
+                    <td>{{ p.school }}</td>
+                </tr>
+                {% endfor %}
+                {% if not roster %}
+                <tr>
+                    <td colspan="9">
+                        <em>No Roster Data Available</em>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </section>
+
     <!-- this table will display stats for each of the last 20 games -->
     <section class="last-20-games">
         <h2>Last 20 Games</h2>

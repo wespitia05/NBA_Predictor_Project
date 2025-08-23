@@ -64,6 +64,18 @@ h1 {
     text-align: right;
 }
 
+/* player link styling */
+.player-link {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.player-link:hover {
+    color: #98b7f5;
+    text-decoration: underline;
+}
+
 /* table styling */
 table {
     width: 100%;

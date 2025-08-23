@@ -4,7 +4,7 @@ import os
 # import list of nba teams
 from nba_api.stats.static import teams
 # import endpoints to retrieve team info
-from nba_api.stats.endpoints import teaminfocommon
+from nba_api.stats.endpoints import teaminfocommon, commonteamroster
 # import list of NBA players
 from nba_api.stats.static import players
 # import endpoints to retrieve player stats
@@ -343,20 +343,70 @@ def team_stats(team_abbr):
         'WIN': 'Win'
     })
 
-    return render_template('team_stats.html',
-                           team_name=team_name,
-                           team_abbr=team_abbr.upper(),
-                           team_city=team_city,
-                           team_conference=team_conference,
-                           team_division=team_division,
-                           conf_rank=conf_rank,
-                           div_rank=div_rank,
-                           games=games.to_dict(orient='records'),
-                           avg_points=avg_points,
-                           avg_rebounds=avg_rebounds,
-                           avg_assists=avg_assists,
-                           avg_turnovers=avg_turnovers,
-                           logo_filename=logo_filename)
+    # here we will extract the roster information
+    season_str = "2024-25"
+    try: 
+        latest_date = pd.to_datetime(team_games['GAME DATE']).max()
+        if pd.notna(latest_date):
+            y = latest_date.year
+            season_str = f"{y}-{str(y+1)[-2:]}" if latest_date.month >= 7 else f"{y-1}-{str(y)[-2:]}"
+    except Exception:
+        pass
+
+    try:
+        roster_df = commonteamroster.CommonTeamRoster(team_id=team_id, season=season_str).get_data_frames()[0]
+    except Exception:
+        roster_df = pd.DataFrame()
+    
+    roster = []
+    if not roster_df.empty:
+        for _, r in roster_df.iterrows():
+            pid    = int(r.get('PLAYER_ID', 0)) if pd.notna(r.get('PLAYER_ID')) else None
+            name   = r.get('PLAYER', 'N/A')
+            jersey = r.get('NUM', 'N/A')
+            pos    = r.get('POSITION', 'N/A')
+            height = r.get('HEIGHT', 'N/A')
+            weight = r.get('WEIGHT', 'N/A')
+            bday   = r.get('BIRTH_DATE', 'N/A')
+            raw_age = r.get('AGE')
+            if pd.notna(raw_age):
+                try:
+                    age = int(float(raw_age))
+                except (ValueError, TypeError):
+                    age = 'N/A'
+            else:
+                age = 'N/A'
+            exp    = r.get('EXP', 'N/A')
+            school = r.get('SCHOOL', 'N/A')
+
+            roster.append({
+                "id": pid,
+                "name": name,
+                "jersey": jersey,
+                "position": pos,
+                "height": height,
+                "weight": weight,
+                "birthdate": bday,
+                "age": age,
+                "experience": exp,
+                "school": school,
+            })
+
+        return render_template('team_stats.html',
+                            team_name=team_name,
+                            team_abbr=team_abbr.upper(),
+                            team_city=team_city,
+                            team_conference=team_conference,
+                            team_division=team_division,
+                            conf_rank=conf_rank,
+                            div_rank=div_rank,
+                            games=games.to_dict(orient='records'),
+                            avg_points=avg_points,
+                            avg_rebounds=avg_rebounds,
+                            avg_assists=avg_assists,
+                            avg_turnovers=avg_turnovers,
+                            logo_filename=logo_filename,
+                            roster=roster)
 
 # route for the players page
 @app.route('/players')
