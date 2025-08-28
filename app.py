@@ -86,60 +86,82 @@ def get_player_average(player_id):
         return None, None, None, None
 
 # this function will get the 2025-26 schedule for the selected team
-def get_next_2025_26_simple(team_abbr: str, n: int = 5):
-    import requests
-    from datetime import datetime, timezone
-    from zoneinfo import ZoneInfo  # Python 3.9+
-
+def get_upcoming_games(team_abbr: str, n: int = 5):
+    # url for the nba's json schedule file
     url = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2.json"
+    # makes sure abbreviation is uppercase
     team_abbr = (team_abbr or "").upper()
+    # creates timezone object for eastern time
     ET = ZoneInfo("America/New_York")  
 
+    # this helper function takes any value and ensures its a clean string
     def clean(val):
+        # if its not a string, return ""
         if not isinstance(val, str):
             return ""
+        # if its TBD, (TBD) or empty, return "" otherwise return stripped string
         v = val.strip()
         return "" if v in {"", "TBD", "(TBD)"} else v
 
+    # fetches json scheudle from the nba
     try:
+        # uses user agent so nba.com doesn't reject the request, will time out if it takes more than 6 seconds
         resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=6)
         data = resp.json()
+        # game_dates will list all game blocks in upcoming season
         game_dates = data.get("leagueSchedule", {}).get("gameDates", [])
     except Exception as e:
         print("[DEBUG] schedule fetch failed:", e)
         return []
 
+    # here we define the season window
+    # july 1, 2025 00:00:00 to june 30, 2026 23:59:59
     season_start = datetime(2025, 7, 1, 0, 0, 0, tzinfo=timezone.utc)
     season_end   = datetime(2026, 6, 30, 23, 59, 59, tzinfo=timezone.utc)
-    now_utc = datetime.now(timezone.utc)
+    now_utc = datetime.now(timezone.utc) # stores utc to filter out past games
 
+    # create an empty list where we will store upcoming games for selected team
     results = []
+    # loops over each gameDate block in the json
     for gd in game_dates:
+        # then loops over each actual game
         for g in gd.get("games", []):
+            # safely pulls team abbr for the home and away teams
             home_tri = ((g.get("homeTeam") or {}).get("teamTricode")) or ""
             away_tri = ((g.get("awayTeam") or {}).get("teamTricode")) or ""
+            # makes sure they are uppercase
             home = home_tri.upper() if isinstance(home_tri, str) else ""
             away = away_tri.upper() if isinstance(away_tri, str) else ""
+            # skips game if home/away abbr are missing or selected team abbr is not playing
             if not home or not away or team_abbr not in (home, away):
                 continue
-
+            
+            # gets the scheduled tip off time from json
             dt_str = g.get("gameDateTimeUTC")
+            # if its not a string, skip
             if not isinstance(dt_str, str):
                 continue
+            # convert from iso string to python datetime in utc
             try:
                 dt_utc = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
             except Exception:
                 continue
 
+            # skip games that are outside of 2025-26 season window or already happened
             if not (season_start <= dt_utc <= season_end) or dt_utc < now_utc:
                 continue
-
+            
+            # converts from utc to eastern time
             dt_et = dt_utc.astimezone(ET)
+            # formats date to yyyy-mm-dd
             date_et_str = dt_et.date().isoformat()
 
+            # figures out the type of game
             label = clean(g.get("gameLabel"))
+            # if gameLabel is read properly we return it
             if label:
                 game_type = label
+            # if its missing, fall back to gameId prefix or display unknown
             else:
                 gid = str(g.get("gameId", ""))
                 prefix = gid[:3]
@@ -151,16 +173,22 @@ def get_next_2025_26_simple(team_abbr: str, n: int = 5):
                     "005": "Play-In",
                 }.get(prefix, "Unknown")
 
+            # get the games tip off time and arena, if missing display (TBD)
             time_et = clean(g.get("gameStatusText")) or "(TBD)"
             arena   = clean(g.get("arenaName")) or "(TBD)"
 
+            # get the games week number and side cup if available
             week_name = clean(g.get("weekName"))            
             game_sub  = clean(g.get("gameSubLabel"))        
 
+            # build descriptive label for notes (week)
             label_for_notes = label or game_type
+            # if both label and subLabel exist, combine
+            #otherwise, if only label display only label or if none then ""
             label_part = f"{label_for_notes} : {game_sub}" if (label_for_notes and game_sub) \
                          else (label_for_notes if label_for_notes else "")
 
+            # combines week name and label_part into one string separated by comma
             notes_parts = []
             if week_name:
                 notes_parts.append(week_name)
@@ -168,6 +196,7 @@ def get_next_2025_26_simple(team_abbr: str, n: int = 5):
                 notes_parts.append(label_part)
             notes = ", ".join(notes_parts)
 
+            # build our results dictionary for this game with everything we need
             results.append({
                 "date": date_et_str,          
                 "time_et": time_et,           
@@ -180,7 +209,9 @@ def get_next_2025_26_simple(team_abbr: str, n: int = 5):
                 "when": dt_utc,               
             })
 
+    # sorts all of the team's games chronologically (by when utc datetime)
     results.sort(key=lambda x: x["when"])
+    # takes only the first n games, removes the hidden when field and returns cleaned list
     return [{k: v for k, v in r.items() if k != "when"} for r in results[:n]]
 
 # route for the homepage
@@ -507,7 +538,7 @@ def team_stats(team_abbr):
                 "school": school,
             })
 
-    upcoming_games = get_next_2025_26_simple(team_abbr, n=5)
+    upcoming_games = get_upcoming_games(team_abbr, n=5)
 
     return render_template('team_stats.html',
                         team_name=team_name,
