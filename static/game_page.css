@@ -27,11 +27,6 @@ header {
     align-items: center;
 }
 
-/* logo styling */
-.team-logo img {
-    width: 250px;
-}
-
 /* main title styling */
 .header-text {
     text-align: center;
@@ -43,53 +38,6 @@ header {
 h1 {
     font-size: 48px;
     color: #98b7f5;
-}
-
-/* team info styling */
-.team-info {
-    display: flex;
-    flex-direction: column;
-    font-size: 16px;
-}
-
-.team-info p {
-    display: flex;
-    justify-content: space-between;
-    width: 17vw;
-}
-
-.team-info .label {
-    text-align: left;
-    font-weight: bold;
-}
-
-.team-info .value {
-    text-align: right;
-}
-
-/* player link styling */
-.player-link, .game-link {
-    color: white;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.player-link, .game-link:hover {
-    color: #98b7f5;
-    text-decoration: underline;
-}
-
-/* table styling */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-}
-
-th, td {
-    padding: 0.5rem;
-    text-align: center;
-    border: 1px solid #ccc;
 }
 
 /* footer styling */

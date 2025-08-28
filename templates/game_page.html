@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA Predictor Project Game Page</title>
+    <!-- link to the css file in static folder -->
+    <link rel="stylesheet" href="{{url_for('static', filename='game_page.css')}}">
+</head>
+<body>
+    <header>
+        <!-- wrap title in container -->
+        <div class="header-text">
+            <!-- page title -->
+            <h1>{{ away_name }} @ {{ home_name }}</h1>
+            <p>Game ID: {{ game_id }}</p>
+        </div>
+    </header>
+    
+    <!-- footer -->
+    <footer>
+        <p>&copy; 2025 Courtside Predictor - Built with Flask</p>
+    </footer>
+</body>
+</html>

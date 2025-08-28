@@ -4,11 +4,11 @@ import requests
 # import list of nba teams
 from nba_api.stats.static import teams
 # import endpoints to retrieve team info
-from nba_api.stats.endpoints import teaminfocommon, commonteamroster, scoreboardv2
+from nba_api.stats.endpoints import teaminfocommon, commonteamroster, boxscoresummaryv2
 # import list of NBA players
 from nba_api.stats.static import players
 # import endpoints to retrieve player stats
-from nba_api.stats.endpoints import playercareerstats, commonplayerinfo, playergamelog
+from nba_api.stats.endpoints import commonplayerinfo, playergamelog
 # import datetime
 from datetime import timezone, datetime, UTC
 # import zoneinfo
@@ -198,6 +198,7 @@ def get_upcoming_games(team_abbr: str, n: int = 5):
 
             # build our results dictionary for this game with everything we need
             results.append({
+                "game_id": str(g.get("gameId", "")),
                 "date": date_et_str,          
                 "time_et": time_et,           
                 "home_abbr": home,
@@ -557,6 +558,50 @@ def team_stats(team_abbr):
                         roster=roster,
                         record_2024_25=record_2024_25,
                         upcoming_games=upcoming_games)
+
+
+# route for the game page
+@app.route("/game/<game_id>")
+def game_page(game_id):
+    try:
+        summary = boxscoresummaryv2.BoxScoreSummaryV2(game_id=game_id, timeout=6)
+        game_df = summary.game_summary.get_data_frame()
+    except Exception as e:
+        return f"<h1>Error fetching game {game_id}: {e}</h1>"
+
+    if game_df.empty:
+        return f"<h1>No data for game {game_id}</h1>"
+
+    row = game_df.iloc[0]
+
+    # 1) Get team IDs from the summary
+    home_id = int(row.get("HOME_TEAM_ID", 0) or 0)
+    away_id = int(row.get("VISITOR_TEAM_ID", 0) or 0)
+
+    # 2) Build id -> full_name lookup with your import
+    id_to_full = {t["id"]: t["full_name"] for t in teams.get_teams()}
+
+    # 3) Look up names
+    home_name = id_to_full.get(home_id, "")
+    away_name = id_to_full.get(away_id, "")
+
+    # 4) Fallbacks if static mapping fails
+    if not home_name:
+        home_name = f"{row.get('HOME_TEAM_CITY','')} {row.get('HOME_TEAM_NICKNAME','')}".strip()
+    if not away_name:
+        away_name = f"{row.get('VISITOR_TEAM_CITY','')} {row.get('VISITOR_TEAM_NICKNAME','')}".strip()
+
+    if not home_name:
+        home_name = str(row.get("HOME_TEAM_ABBREVIATION", "")) or "Home Team"
+    if not away_name:
+        away_name = str(row.get("VISITOR_TEAM_ABBREVIATION", "")) or "Away Team"
+
+    return render_template(
+        "game_page.html",
+        game_id=game_id,
+        home_name=home_name,
+        away_name=away_name
+    )
 
 # route for the players page
 @app.route('/players')

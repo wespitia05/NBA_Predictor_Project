@@ -53,7 +53,11 @@
                     <tr>
                         <td>{{ g.date }}</td>
                         <td>{{ g.time_et }}</td>
-                        <td>{{ g.away_abbr }} @ {{ g.home_abbr }}</td>
+                        <td>
+                            <a href="{{ url_for('game_page', game_id=g.game_id) }}" class="game-link">
+                              {{ g.away_abbr }} @ {{ g.home_abbr }}
+                            </a>
+                          </td>
                         <td>{{ g.game_type }}</td>
                         <td>{{ "Home" if g.is_home else "Away" }}</td>
                         <td>{{ g.arena }}</td>
