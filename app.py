@@ -1,16 +1,18 @@
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
-import os
+import requests
 # import list of nba teams
 from nba_api.stats.static import teams
 # import endpoints to retrieve team info
-from nba_api.stats.endpoints import teaminfocommon, commonteamroster
+from nba_api.stats.endpoints import teaminfocommon, commonteamroster, scoreboardv2
 # import list of NBA players
 from nba_api.stats.static import players
 # import endpoints to retrieve player stats
 from nba_api.stats.endpoints import playercareerstats, commonplayerinfo, playergamelog
 # import datetime
-from datetime import datetime, UTC
+from datetime import timezone, datetime, UTC
+# import zoneinfo
+from zoneinfo import ZoneInfo
 
 # creates the flask app
 app = Flask(__name__)
@@ -82,6 +84,104 @@ def get_player_average(player_id):
     
     except Exception:
         return None, None, None, None
+
+# this function will get the 2025-26 schedule for the selected team
+def get_next_2025_26_simple(team_abbr: str, n: int = 5):
+    import requests
+    from datetime import datetime, timezone
+    from zoneinfo import ZoneInfo  # Python 3.9+
+
+    url = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2.json"
+    team_abbr = (team_abbr or "").upper()
+    ET = ZoneInfo("America/New_York")  
+
+    def clean(val):
+        if not isinstance(val, str):
+            return ""
+        v = val.strip()
+        return "" if v in {"", "TBD", "(TBD)"} else v
+
+    try:
+        resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=6)
+        data = resp.json()
+        game_dates = data.get("leagueSchedule", {}).get("gameDates", [])
+    except Exception as e:
+        print("[DEBUG] schedule fetch failed:", e)
+        return []
+
+    season_start = datetime(2025, 7, 1, 0, 0, 0, tzinfo=timezone.utc)
+    season_end   = datetime(2026, 6, 30, 23, 59, 59, tzinfo=timezone.utc)
+    now_utc = datetime.now(timezone.utc)
+
+    results = []
+    for gd in game_dates:
+        for g in gd.get("games", []):
+            home_tri = ((g.get("homeTeam") or {}).get("teamTricode")) or ""
+            away_tri = ((g.get("awayTeam") or {}).get("teamTricode")) or ""
+            home = home_tri.upper() if isinstance(home_tri, str) else ""
+            away = away_tri.upper() if isinstance(away_tri, str) else ""
+            if not home or not away or team_abbr not in (home, away):
+                continue
+
+            dt_str = g.get("gameDateTimeUTC")
+            if not isinstance(dt_str, str):
+                continue
+            try:
+                dt_utc = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+            except Exception:
+                continue
+
+            if not (season_start <= dt_utc <= season_end) or dt_utc < now_utc:
+                continue
+
+            dt_et = dt_utc.astimezone(ET)
+            date_et_str = dt_et.date().isoformat()
+
+            label = clean(g.get("gameLabel"))
+            if label:
+                game_type = label
+            else:
+                gid = str(g.get("gameId", ""))
+                prefix = gid[:3]
+                game_type = {
+                    "001": "Preseason",
+                    "002": "Regular Season",
+                    "003": "All-Star",
+                    "004": "Playoffs",
+                    "005": "Play-In",
+                }.get(prefix, "Unknown")
+
+            time_et = clean(g.get("gameStatusText")) or "(TBD)"
+            arena   = clean(g.get("arenaName")) or "(TBD)"
+
+            week_name = clean(g.get("weekName"))            
+            game_sub  = clean(g.get("gameSubLabel"))        
+
+            label_for_notes = label or game_type
+            label_part = f"{label_for_notes} : {game_sub}" if (label_for_notes and game_sub) \
+                         else (label_for_notes if label_for_notes else "")
+
+            notes_parts = []
+            if week_name:
+                notes_parts.append(week_name)
+            if label_part:
+                notes_parts.append(label_part)
+            notes = ", ".join(notes_parts)
+
+            results.append({
+                "date": date_et_str,          
+                "time_et": time_et,           
+                "home_abbr": home,
+                "away_abbr": away,
+                "is_home": (team_abbr == home),
+                "game_type": game_type,       
+                "arena": arena,               
+                "notes": notes,               
+                "when": dt_utc,               
+            })
+
+    results.sort(key=lambda x: x["when"])
+    return [{k: v for k, v in r.items() if k != "when"} for r in results[:n]]
 
 # route for the homepage
 @app.route('/')
@@ -285,8 +385,9 @@ def team_stats(team_abbr):
     # load our stats data 
     df = pd.read_csv('nba_games_2023_to_2025.csv')
 
-    # filter games for this team from the CSV
-    team_games = df[df['TEAM ABBR'] == team_abbr.upper()]
+    df['GAME DATE'] = pd.to_datetime(df['GAME DATE'], errors='coerce')
+
+    team_games = df.loc[df['TEAM ABBR'].str.upper() == team_abbr.upper()].copy()
 
     # get static team metadata
     nba_teams = teams.get_teams()
@@ -344,8 +445,6 @@ def team_stats(team_abbr):
     })
 
     # here we will extract the win-loss for the team
-    team_games['GAME DATE'] = pd.to_datetime(team_games['GAME DATE'])
-
     # define 2024-25 season window (Oct 2024 – Jun 2025)
     season_start = pd.Timestamp("2024-10-22")
     season_end   = pd.Timestamp("2025-06-30")
@@ -408,22 +507,25 @@ def team_stats(team_abbr):
                 "school": school,
             })
 
-        return render_template('team_stats.html',
-                            team_name=team_name,
-                            team_abbr=team_abbr.upper(),
-                            team_city=team_city,
-                            team_conference=team_conference,
-                            team_division=team_division,
-                            conf_rank=conf_rank,
-                            div_rank=div_rank,
-                            games=games.to_dict(orient='records'),
-                            avg_points=avg_points,
-                            avg_rebounds=avg_rebounds,
-                            avg_assists=avg_assists,
-                            avg_turnovers=avg_turnovers,
-                            logo_filename=logo_filename,
-                            roster=roster,
-                            record_2024_25=record_2024_25)
+    upcoming_games = get_next_2025_26_simple(team_abbr, n=5)
+
+    return render_template('team_stats.html',
+                        team_name=team_name,
+                        team_abbr=team_abbr.upper(),
+                        team_city=team_city,
+                        team_conference=team_conference,
+                        team_division=team_division,
+                        conf_rank=conf_rank,
+                        div_rank=div_rank,
+                        games=games.to_dict(orient='records'),
+                        avg_points=avg_points,
+                        avg_rebounds=avg_rebounds,
+                        avg_assists=avg_assists,
+                        avg_turnovers=avg_turnovers,
+                        logo_filename=logo_filename,
+                        roster=roster,
+                        record_2024_25=record_2024_25,
+                        upcoming_games=upcoming_games)
 
 # route for the players page
 @app.route('/players')
