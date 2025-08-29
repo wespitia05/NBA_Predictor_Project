@@ -215,6 +215,74 @@ def get_upcoming_games(team_abbr: str, n: int = 5):
     # takes only the first n games, removes the hidden when field and returns cleaned list
     return [{k: v for k, v in r.items() if k != "when"} for r in results[:n]]
 
+# this function will find a selected game in the 2025-26 schedule
+def find_game_in_schedule(game_id: str, timeout: float = 6.0):
+    # url for the nba's json schedule file
+    url = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2.json"
+    # creates timezone object for eastern time
+    ET = ZoneInfo("America/New_York") 
+
+    # fetches json scheudle from the nba
+    try:
+        # uses user agent so nba.com doesn't reject the request, will time out if it takes more than 6 seconds
+        resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=6)
+        data = resp.json()
+        # game_dates will list all game blocks in upcoming season
+        game_dates = data.get("leagueSchedule", {}).get("gameDates", [])
+    except Exception as e:
+        print("[DEBUG] schedule fetch failed:", e)
+        return []
+
+    # loops over each gameDate block in the json
+    for gd in game_dates:
+        # then loops over each actual game
+        for g in gd.get("games", []):
+            # if current game's gameId doesn't match the one we are looking for, skip it
+            if str(g.get("gameId", "")) != str(game_id):
+                continue
+
+            # extract homeTeam and awayTeam blocks from json or {} if missing
+            home = (g.get("homeTeam") or {})
+            away = (g.get("awayTeam") or {})
+
+            # builds full name of teams by combining city and name
+            home_full = f"{(home.get('teamCity') or '').strip()} {(home.get('teamName') or '').strip()}".strip()
+            away_full = f"{(away.get('teamCity')  or '').strip()} {(away.get('teamName')  or '').strip()}".strip()
+
+            # gets the scheduled tip off time from json
+            dt_et_str = ""
+            dt_utc_str = g.get("gameDateTimeUTC")
+            if isinstance(dt_utc_str, str) and dt_utc_str:
+                # convert from iso string to python datetime in utc and formats date
+                try:
+                    dt_utc = datetime.fromisoformat(dt_utc_str.replace("Z", "+00:00"))
+                    dt_et_str = dt_utc.astimezone(ET).date().isoformat()
+                except Exception:
+                    pass
+
+            # extract match type and week/game info
+            game_label = (g.get("gameLabel") or "").strip()        
+            game_sub   = (g.get("gameSubLabel") or "").strip()     
+            week_name  = (g.get("weekName") or "").strip()    
+
+            # builds week/game info text      
+            label_part = f"{game_label} : {game_sub}" if (game_label and game_sub) else game_label
+            notes = ", ".join([x for x in (week_name, label_part) if x])
+
+            # returns dictionary with relevant info for this game
+            return {
+                "home_full": home_full or (home.get("teamTricode") or "Home Team"),
+                "away_full": away_full or (away.get("teamTricode") or "Away Team"),
+                "arena": (g.get("arenaName") or "").strip(),
+                "date_et": dt_et_str,                         
+                "time_et_text": (g.get("gameStatusText") or "").strip(),  
+                "label": game_label,
+                "sub_label": game_sub,
+                "notes": notes,
+            }
+
+    return {}
+
 # route for the homepage
 @app.route('/')
 def home_page():
@@ -559,48 +627,24 @@ def team_stats(team_abbr):
                         record_2024_25=record_2024_25,
                         upcoming_games=upcoming_games)
 
-
 # route for the game page
 @app.route("/game/<game_id>")
 def game_page(game_id):
-    try:
-        summary = boxscoresummaryv2.BoxScoreSummaryV2(game_id=game_id, timeout=6)
-        game_df = summary.game_summary.get_data_frame()
-    except Exception as e:
-        return f"<h1>Error fetching game {game_id}: {e}</h1>"
-
-    if game_df.empty:
-        return f"<h1>No data for game {game_id}</h1>"
-
-    row = game_df.iloc[0]
-
-    # 1) Get team IDs from the summary
-    home_id = int(row.get("HOME_TEAM_ID", 0) or 0)
-    away_id = int(row.get("VISITOR_TEAM_ID", 0) or 0)
-
-    # 2) Build id -> full_name lookup with your import
-    id_to_full = {t["id"]: t["full_name"] for t in teams.get_teams()}
-
-    # 3) Look up names
-    home_name = id_to_full.get(home_id, "")
-    away_name = id_to_full.get(away_id, "")
-
-    # 4) Fallbacks if static mapping fails
-    if not home_name:
-        home_name = f"{row.get('HOME_TEAM_CITY','')} {row.get('HOME_TEAM_NICKNAME','')}".strip()
-    if not away_name:
-        away_name = f"{row.get('VISITOR_TEAM_CITY','')} {row.get('VISITOR_TEAM_NICKNAME','')}".strip()
-
-    if not home_name:
-        home_name = str(row.get("HOME_TEAM_ABBREVIATION", "")) or "Home Team"
-    if not away_name:
-        away_name = str(row.get("VISITOR_TEAM_ABBREVIATION", "")) or "Away Team"
+    meta = find_game_in_schedule(game_id)
+    if not meta:
+        return f"<h1>No schedule data found for game {game_id}</h1>"
 
     return render_template(
         "game_page.html",
         game_id=game_id,
-        home_name=home_name,
-        away_name=away_name
+        home_name=meta["home_full"],
+        away_name=meta["away_full"],
+        date_et=meta["date_et"],
+        time_et_text=meta["time_et_text"],
+        arena=meta["arena"],
+        label=meta["label"],
+        sub_label=meta["sub_label"],
+        notes=meta["notes"],
     )
 
 # route for the players page
