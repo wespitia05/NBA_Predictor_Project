@@ -9,11 +9,18 @@
 </head>
 <body>
     <header>
+        <div class="team-logo">
+            <img src="{{ url_for('static', filename=away_logo) }}" alt="{{ away_name }} logo">
+        </div>
         <!-- wrap title in container -->
         <div class="header-text">
             <!-- page title -->
+            <p>{{ label }}</p>
             <h1>{{ away_name }} @ {{ home_name }}</h1>
-            <p>Game ID: {{ game_id }}</p>
+            <p>{{ time_et_text }}</p>
+        </div>
+        <div class="team-logo">
+            <img src="{{ url_for('static', filename=home_logo) }}" alt="{{ home_name }} logo">
         </div>
     </header>
     

@@ -633,12 +633,24 @@ def game_page(game_id):
     meta = find_game_in_schedule(game_id)
     if not meta:
         return f"<h1>No schedule data found for game {game_id}</h1>"
+    
+    # this function turns team name into images/team_name_logo.png
+    def build_logo_filename(team_name: str) -> str:
+        return f"images/{team_name.lower().replace(' ', '_')}_logo.png"
+
+    home_name = meta["home_full"]
+    away_name = meta["away_full"]
+
+    home_logo = build_logo_filename(home_name)
+    away_logo = build_logo_filename(away_name)
 
     return render_template(
         "game_page.html",
         game_id=game_id,
-        home_name=meta["home_full"],
-        away_name=meta["away_full"],
+        home_name=home_name,
+        away_name=away_name,
+        home_logo=home_logo,
+        away_logo=away_logo,
         date_et=meta["date_et"],
         time_et_text=meta["time_et_text"],
         arena=meta["arena"],
