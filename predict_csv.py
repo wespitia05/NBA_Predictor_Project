@@ -5,7 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
 # load our csv
-df = pd.read_csv("nba_games_2020_to_2025.csv")
+df = pd.read_csv("nba_games_2023_to_2025.csv")
 
 # print out the columns in our dataset
 # print("columns in dataset:")

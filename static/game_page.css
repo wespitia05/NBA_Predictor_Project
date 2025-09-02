@@ -45,6 +45,83 @@ h1 {
     color: #98b7f5;
 }
 
+/* Prediction UI styles */
+.predict-section {
+    margin: 16px 0 24px;
+}
+
+.predict-btn {
+    appearance: none;
+    border: none;
+    background: #1e3a8a;   
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.predict-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.predict-loading {
+    margin-top: 10px;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.predict-error {
+    margin-top: 10px;
+    color: #b91c1c;    
+    font-weight: 600;
+}
+
+.predict-results {
+    margin-top: 12px;
+}
+
+.predict-title {
+    margin: 0 0 6px;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.pred-outcome {
+    margin: 4px 0 10px;
+    font-weight: 600;
+}
+
+.pred-breakdown {
+    margin: 6px 0 10px;
+    padding-left: 18px;
+}
+
+.pred-breakdown li {
+    margin: 2px 0;
+}
+
+.pred-accuracy {
+    margin: 6px 0 4px;
+    color: #555;
+}
+
+.pred-details summary {
+    cursor: pointer;
+}
+
+.pred-explain {
+    margin-top: 8px;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+/* utility */
+.hidden {
+    display: none;
+}  
+
 /* footer styling */
 footer {
     margin-top: 50px;

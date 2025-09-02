@@ -6,6 +6,8 @@
     <title>NBA Predictor Project Game Page</title>
     <!-- link to the css file in static folder -->
     <link rel="stylesheet" href="{{url_for('static', filename='game_page.css')}}">
+    <!-- link to the js file in the static folder -->
+    <script src="{{url_for('static', filename='game_page.js')}}"></script>
 </head>
 <body>
     <header>
@@ -15,14 +17,45 @@
         <!-- wrap title in container -->
         <div class="header-text">
             <!-- page title -->
-            <p>{{ label }}</p>
             <h1>{{ away_name }} @ {{ home_name }}</h1>
-            <p>{{ time_et_text }}</p>
+            <p>{{ date_et }} {{ time_et_text }}</p>
+            <p>{{ notes }}</p>
         </div>
         <div class="team-logo">
             <img src="{{ url_for('static', filename=home_logo) }}" alt="{{ home_name }} logo">
         </div>
     </header>
+
+    <!-- Prediction UI -->
+    <section id="predict-section"
+            class="predict-section"
+            data-game-id="{{ game_id }}"
+            data-home-name="{{ home_name }}"
+            data-away-name="{{ away_name }}">
+        <button id="predict-btn" class="predict-btn" type="button">
+            Calculate win/loss probability
+        </button>
+
+        <div id="predict-error" class="predict-error hidden" role="alert"></div>
+
+        <div id="predict-results" class="predict-results hidden" aria-live="polite">
+            <h3 class="predict-title">Match prediction</h3>
+            <p id="pred-outcome" class="pred-outcome"></p>
+
+            <ul id="pred-breakdown" class="pred-breakdown" aria-label="Probability breakdown"></ul>
+
+            <p id="pred-accuracy" class="pred-accuracy"></p>
+
+            <details class="pred-details">
+                <summary>Why this prediction?</summary>
+                <div id="pred-explain" class="pred-explain"></div>
+            </details>
+        </div>
+
+        <div id="predict-loading" class="predict-loading hidden" aria-hidden="true">
+            Calculating…
+        </div>
+    </section>
     
     <!-- footer -->
     <footer>

@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import requests
+import numpy as np
 # import list of nba teams
 from nba_api.stats.static import teams
 # import endpoints to retrieve team info
@@ -13,11 +14,14 @@ from nba_api.stats.endpoints import commonplayerinfo, playergamelog
 from datetime import timezone, datetime, UTC
 # import zoneinfo
 from zoneinfo import ZoneInfo
+from sklearn.linear_model import LogisticRegression
 
 # creates the flask app
 app = Flask(__name__)
 
 # print(df.columns)
+# this keeps the trained model memory so we dont retrain every click
+model_cache = {"clf": None}
 
 # this function will get the player averages for ppg, tpg and apg for their current team
 def get_player_average(player_id):
@@ -256,7 +260,7 @@ def find_game_in_schedule(game_id: str, timeout: float = 6.0):
                 # convert from iso string to python datetime in utc and formats date
                 try:
                     dt_utc = datetime.fromisoformat(dt_utc_str.replace("Z", "+00:00"))
-                    dt_et_str = dt_utc.astimezone(ET).date().isoformat()
+                    dt_et_str = dt_utc.astimezone(ET).strftime("%B %d, %Y")
                 except Exception:
                     pass
 
@@ -273,15 +277,102 @@ def find_game_in_schedule(game_id: str, timeout: float = 6.0):
             return {
                 "home_full": home_full or (home.get("teamTricode") or "Home Team"),
                 "away_full": away_full or (away.get("teamTricode") or "Away Team"),
+                "home_abbr": (home.get("teamTricode") or "").upper(),
+                "away_abbr": (away.get("teamTricode") or "").upper(),
                 "arena": (g.get("arenaName") or "").strip(),
                 "date_et": dt_et_str,                         
-                "time_et_text": (g.get("gameStatusText") or "").strip(),  
+                "time_et_text": (g.get("gameStatusText").upper() or "").strip(),  
                 "label": game_label,
                 "sub_label": game_sub,
                 "notes": notes,
             }
 
     return {}
+
+# this function will load the csv into a dataframe and build a small training matrix
+def load_training_df_and_features():
+    # load our stats data 
+    df = pd.read_csv('nba_games_2023_to_2025.csv')
+
+    # ensure the GAME DATE column is datetime (we use it for sorting/rest days)
+    if not np.issubdtype(df["GAME DATE"].dtype, np.datetime64):
+        df["GAME DATE"] = pd.to_datetime(df["GAME DATE"], errors="coerce")
+
+    # convert text "Home"/"Away" to a simple numeric flag (Home=1, Away=0)
+    home_away_map = {"Home": 1, "Away": 0}
+    df["HOME_FLAG"] = df["HOME/AWAY"].map(home_away_map).fillna(0).astype(int)
+
+    # features (X) and label (y)
+    X = df[["POINTS", "REBOUNDS", "ASSISTS", "TURNOVERS", "HOME_FLAG"]].copy()
+    y = df["WIN"].astype(int)
+
+    # drop any rows with missing values so model training is safe
+    mask = ~X.isna().any(axis=1) & y.notna()
+    X = X[mask]
+    y = y[mask]
+    return df, X, y
+
+# this function will either train the small logistic regression model once or reuse it
+def train_or_get_cache_model():
+    if model_cache["clf"] is not None:
+        return model_cache["clf"]
+    
+    _, X, y = load_training_df_and_features()
+    if len(X) < 100:
+        model_cache["clf"] = None
+        return None
+    
+    clf = LogisticRegression(max_iter=1000)
+    clf.fit(X,y)
+    model_cache["clf"] = clf
+    return clf
+
+# this function will compute averages over its last n games, return small dict with exact features
+def compute_last_n_game_averages_for_team(team_df: pd.DataFrame, n: int = 10):
+    if team_df.empty:
+        return None
+    recent = team_df.sort_values("GAME DATE", ascending=False).head(n)
+    return {
+        "POINTS": recent["POINTS"].mean(),
+        "REBOUNDS": recent["REBOUNDS"].mean(),
+        "ASSISTS": recent["ASSISTS"].mean(),
+        "TURNOVERS": recent["TURNOVERS"].mean(),
+    }
+
+# this function converts avgs + home/away flag into models expected feature order
+def build_feature_vector_from_averages(averages, is_home_flag: int):
+    return pd.DataFrame([{
+        "POINTS": averages["POINTS"],
+        "REBOUNDS": averages["REBOUNDS"],
+        "ASSISTS": averages["ASSISTS"],
+        "TURNOVERS": averages["TURNOVERS"],
+        "HOME_FLAG": is_home_flag
+    }])
+
+# this function looks at the last head-to-head games between the two teams
+def compute_head_to_head_win_rate_home_perspective(df: pd.DataFrame, home_abbr: str, away_abbr: str, meetings_to_look: int = 6) -> float:
+    mask = (df["TEAM ABBR"].str.upper() == home_abbr.upper()) & (df["OPP ABBR"].str.upper() == away_abbr.upper())
+    h2h = df.loc[mask].sort_values("GAME DATE", ascending=False).head(meetings_to_look)
+    if h2h.empty:
+        return 0.5
+    return float(h2h["WIN"].mean())
+
+# this function returns the home court advantage value
+def get_home_court_baseline_bump() -> float:
+    return 0.05 
+
+# this function returns how many full days before today the team last played
+def days_since_last_game_for_team(df: pd.DataFrame, team_abbr: str, as_of_date: pd.Timestamp) -> int:
+    played = df[(df["TEAM ABBR"].str.upper() == team_abbr.upper()) & (df["GAME DATE"] < as_of_date)]
+    if played.empty:
+        return 0
+    last_game_day = played["GAME DATE"].max().normalize()
+    return int((as_of_date.normalize() - last_game_day).days)
+
+# this function converts rest-days into a small probability bump for the home team
+def convert_rest_difference_to_bump(home_minus_away_days: int) -> float:
+    rd = max(-3, min(3, home_minus_away_days))
+    return 0.02 * rd
 
 # route for the homepage
 @app.route('/')
@@ -626,6 +717,135 @@ def team_stats(team_abbr):
                         roster=roster,
                         record_2024_25=record_2024_25,
                         upcoming_games=upcoming_games)
+
+# route for the team prediction functionality
+@app.route("/api/predict/<game_id>")
+def api_predict(game_id):
+    # find who plays + when, from your schedule helper
+    meta = find_game_in_schedule(game_id)
+    if not meta:
+        return jsonify({"error": "game not found"}), 404
+
+    home_name = meta.get("home_full", "Home Team")
+    away_name = meta.get("away_full", "Away Team")
+    home_abbr = meta.get("home_abbr", "")
+    away_abbr = meta.get("away_abbr", "")
+
+    # load csv and train model if needed
+    df, X_train, y_train = load_training_df_and_features()
+    clf = train_or_get_cache_model()
+    if clf is None:
+        return jsonify({
+            "game_id": game_id,
+            "prediction": f"{home_name} vs {away_name}",
+            "home_name": home_name,
+            "away_name": away_name,
+            "probabilities": {"home": 50.0, "away": 50.0},
+            "accuracy": None,
+            "explain": {"reason": "not enough training data"}
+        })
+
+    # 3) compute each team’s recent form (last 10 games)
+    df_home = df[df["TEAM NAME"].str.lower() == home_name.lower()]
+    df_away = df[df["TEAM NAME"].str.lower() == away_name.lower()]
+    avgs_home = compute_last_n_game_averages_for_team(df_home, n=10)
+    avgs_away = compute_last_n_game_averages_for_team(df_away, n=10)
+
+    if not avgs_home or not avgs_away:
+        return jsonify({
+            "game_id": game_id,
+            "prediction": f"{home_name} vs {away_name}",
+            "home_name": home_name,
+            "away_name": away_name,
+            "probabilities": {"home": 50.0, "away": 50.0},
+            "accuracy": float((clf.predict(X_train) == y_train).mean()),
+            "explain": {"reason": "insufficient recent games for one team"}
+        })
+
+    # base model P(win) for each side, from the small logistic regression
+    x_home = build_feature_vector_from_averages(avgs_home, is_home_flag=1)
+    x_away = build_feature_vector_from_averages(avgs_away, is_home_flag=0)
+    p_home_win = float(clf.predict_proba(x_home)[0, 1])
+    p_away_win = float(clf.predict_proba(x_away)[0, 1])
+
+    # head-to-head (HOME perspective) over last 6 meetings
+    h2h_home_win_rate = compute_head_to_head_win_rate_home_perspective(
+        df,
+        home_abbr or (df_home["TEAM ABBR"].iloc[0] if not df_home.empty else ""),
+        away_abbr or (df_away["TEAM ABBR"].iloc[0] if not df_away.empty else ""),
+        meetings_to_look=6
+    )
+    h2h_away_win_rate = 1.0 - h2h_home_win_rate
+
+    # home-court baseline
+    home_court = get_home_court_baseline_bump()
+
+    # rest-day bump: parse ET date; if parsing fails, fall back to latest CSV date
+    try:
+        as_of_date = pd.to_datetime(meta.get("date_et"), format="%B %d, %Y", errors="coerce")
+    except Exception:
+        as_of_date = None
+    if pd.isna(as_of_date):
+        as_of_date = df["GAME DATE"].max()
+
+    home_days_rest = days_since_last_game_for_team(df, home_abbr or (df_home["TEAM ABBR"].iloc[0] if not df_home.empty else ""), as_of_date)
+    away_days_rest = days_since_last_game_for_team(df, away_abbr or (df_away["TEAM ABBR"].iloc[0] if not df_away.empty else ""), as_of_date)
+    rest_diff = home_days_rest - away_days_rest                         # positive means HOME is more rested
+    rest_bump = convert_rest_difference_to_bump(rest_diff)              # small signed bump in [-0.06, +0.06]
+
+    # blend everything together (weights are easy to adjust)
+    weight_model    = 0.80  # main signal: the small logistic regression
+    weight_h2h      = 0.15  # recent head-to-head
+    weight_homec    = 0.05  # constant home-court baseline
+    weight_rest     = 0.05  # rest days effect
+
+    blended_home = (
+        weight_model * p_home_win +
+        weight_h2h   * h2h_home_win_rate +
+        weight_homec * (0.5 + home_court) +
+        weight_rest  * (0.5 + rest_bump)
+    )
+    blended_away = (
+        weight_model * p_away_win +
+        weight_h2h   * h2h_away_win_rate +
+        weight_homec * (0.5 - home_court) +
+        weight_rest  * (0.5 - rest_bump)
+    )
+
+    # normalize to exactly two buckets that sum to 100%
+    total = blended_home + blended_away
+    if total <= 0:
+        home_pct = away_pct = 50.0
+    else:
+        home_pct = 100.0 * blended_home / total
+        away_pct = 100.0 * blended_away / total
+
+    # pick a label + simple training accuracy (we can replace with validation later)
+    predicted_label = f"{home_name} wins" if home_pct >= away_pct else f"{away_name} wins"
+    training_accuracy = float((clf.predict(X_train) == y_train).mean())
+
+    return jsonify({
+        "game_id": game_id,
+        "prediction": predicted_label,
+        "home_name": home_name,
+        "away_name": away_name,
+        "probabilities": {"home": round(home_pct, 2), "away": round(away_pct, 2)},
+        "accuracy": round(training_accuracy, 4),
+        "explain": {
+            "h2h_home": round(h2h_home_win_rate, 3),
+            "home_rest_days": int(home_days_rest),
+            "away_rest_days": int(away_days_rest),
+            "rest_diff": int(rest_diff),
+            "rest_bump": round(rest_bump, 3),
+            "weights": {
+                "model": weight_model,
+                "h2h": weight_h2h,
+                "home_court": weight_homec,
+                "rest": weight_rest
+            }
+        }
+    })
+
 
 # route for the game page
 @app.route("/game/<game_id>")
