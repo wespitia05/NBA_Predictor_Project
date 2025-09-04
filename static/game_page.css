@@ -45,11 +45,12 @@ h1 {
     color: #98b7f5;
 }
 
-/* Prediction UI styles */
+/* prediction styles */
 .predict-section {
     margin: 16px 0 24px;
 }
 
+/* prediction button styling */
 .predict-btn {
     appearance: none;
     background-color: #1d428a;
@@ -73,10 +74,11 @@ h1 {
     cursor: not-allowed;
 }
 
+/* prediction loading styling */
 .predict-loading {
     margin-top: 10px;
-    font-size: 0.95rem;
-    color: #444;
+    font-size: 1rem;
+    color: #fff;
 }
 
 .predict-error {
@@ -143,6 +145,10 @@ h1 {
     margin-top: 8px;
     font-size: 0.95rem;
     color: #fff;
+}
+
+#pred-explain details {
+    margin-bottom: 10px;
 }
 
 /* utility */

@@ -108,14 +108,40 @@ document.addEventListener('DOMContentLoaded', function () {
             const w = e.weights || {};
   
             // build explanation html (h2h win %, rest days, weights)
-            explainEl.innerHTML =
-              `H2H (Home Last 6): <b>${h2hHomePct}%</b><br>` +
-              `Rest Days — Home: <b>${homeRest}</b>, Away: <b>${awayRest}</b> ` +
-              `(Diff <b>${restDiff}</b>, Bump <b>${restBumpPct}%</b>)<br>` +
-              `Weights — Model: <b>${((w.model || 0) * 100).toFixed(0)}%</b>, ` +
-              `H2H: <b>${((w.h2h || 0) * 100).toFixed(0)}%</b>, ` +
-              `Home-Court: <b>${((w.home_court || 0) * 100).toFixed(0)}%</b>, ` +
-              `Rest: <b>${((w.rest || 0) * 100).toFixed(0)}%</b>`;
+            explainEl.innerHTML = `
+                <details>
+                    <summary><b>Head-to-Head (H2H): </b>${h2hHomePct}%</summary>
+                    <div>
+                    Meaning: In the most recent head-to-head games (up to 6), this is the share the
+                    <b>home team</b> won. 50% ≈ even; higher favors the home team.
+                    </div>
+                </details>
+
+                <details>
+                    <summary><b>Rest Days: </b>Home Team Rested <b>${homeRest}</b> days, Away Team Rested <b>${awayRest}</b> days</summary>
+                    <div>
+                    Difference (Home − Away): <b>${restDiff}</b><br>
+                    Rest Bump applied: <b>${restBumpPct}%</b><br>
+                    Meaning: More days since the previous game = more rest. Positive
+                    difference means the home team is more rested. Each day of rest is
+                    worth about <b>+2%</b> in win probability, capped at ±3 days (±6%).
+                    </div>
+                </details>
+
+                <details>
+                    <summary><b>Weights</b>
+                        Model <b>${((w.model || 0) * 100).toFixed(0)}%</b>,
+                        H2H <b>${((w.h2h || 0) * 100).toFixed(0)}%</b>,
+                        Home-Court <b>${((w.home_court || 0) * 100).toFixed(0)}%</b>,
+                        Rest <b>${((w.rest || 0) * 100).toFixed(0)}%</b>
+                    </summary>
+                    <div>
+                    Meaning: Each percentage shows how much that factor contributes
+                    to the blended score before normalization. The “Model” is the main
+                    logistic regression signal; the others are smaller nudges.
+                    </div>
+                </details>
+                `;
           }
   
           // hide loading spinner + show results
