@@ -100,15 +100,36 @@ h1 {
     font-weight: 600;
 }
 
-.pred-breakdown {
-    margin: 6px 0 10px;
-    padding-left: 18px;
+/* --- prediction table styles --- */
+.prob-table {
+    width: 100%;
+    max-width: 520px;
+    margin: 12px auto;
+    border-collapse: collapse;
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    overflow: hidden; /* so header corners round */
 }
 
-.pred-breakdown p {
-    margin: 2px 0;
+.prob-table thead th {
+    text-align: center;
+    padding: 10px 12px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.12);
+    border-bottom: 1px solid rgba(255,255,255,0.18);
 }
 
+.prob-table tbody td {
+    padding: 10px 12px;
+    border-top: 1px solid rgba(255,255,255,0.10);
+}
+
+.prob-table tbody tr.winner {
+    color: black;
+    font-weight: 800;
+    background: rgba(3, 245, 92, 0.985); /* subtle green tint for winner */
+}
+  
 .pred-accuracy {
     margin: 6px 0 4px;
     color: #fff;

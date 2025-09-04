@@ -40,14 +40,24 @@
 
         <div id="predict-results" class="predict-results hidden" aria-live="polite">
             <h3 class="predict-title">Match Prediction:</h3>
-            <p id="pred-outcome" class="pred-outcome"></p>
 
-            <ul id="pred-breakdown" class="pred-breakdown" aria-label="Probability breakdown"></ul>
+            <!-- with this: -->
+            <table class="prob-table" aria-label="Win probability table">
+                <thead>
+                    <tr>
+                        <th>Team</th>
+                        <th>Win Probability</th>
+                    </tr>
+                </thead>
+                <tbody id="pred-table-body">
+                <!-- JS will insert rows -->
+                </tbody>
+            </table>
 
             <p id="pred-accuracy" class="pred-accuracy"></p>
 
             <details class="pred-details">
-                <summary>Why this prediction?</summary>
+                <summary>Why This Prediction?</summary>
                 <div id="pred-explain" class="pred-explain"></div>
             </details>
         </div>
