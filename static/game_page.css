@@ -52,13 +52,20 @@ h1 {
 
 .predict-btn {
     appearance: none;
-    border: none;
-    background: #1e3a8a;   
+    background-color: #1d428a;
     color: #fff;
-    padding: 10px 14px;
+    padding: 15px 30px;
     border-radius: 8px;
-    font-weight: 600;
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: bold;
     cursor: pointer;
+    transition: background-color 0.3s, transform 0.6s ease;
+}
+
+.predict-btn:hover {
+    background-color: #c8102e;
+    transform: scale(1.1);
 }
 
 .predict-btn:disabled {
@@ -98,13 +105,13 @@ h1 {
     padding-left: 18px;
 }
 
-.pred-breakdown li {
+.pred-breakdown p {
     margin: 2px 0;
 }
 
 .pred-accuracy {
     margin: 6px 0 4px;
-    color: #555;
+    color: #fff;
 }
 
 .pred-details summary {
@@ -114,7 +121,7 @@ h1 {
 .pred-explain {
     margin-top: 8px;
     font-size: 0.95rem;
-    color: #444;
+    color: #fff;
 }
 
 /* utility */
