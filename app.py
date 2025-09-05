@@ -603,9 +603,50 @@ def players_stats_page(player_id):
                            age=age,
                            draft_text=draft_text,
                            experience=experience,
+                           player_id=player_id,
                            player_recent_games=player_recent_games,
                            upcoming_games=upcoming_games,
                            team_abbr=team_abbr)
+
+# route for the players game page
+@app.route("/player_game/<int:player_id>/<game_id>")
+def player_game_page(player_id, game_id):
+    # get player + team info
+    team_abbr = get_player_team_abbreviation(player_id)
+    meta = find_game_in_schedule(game_id)
+
+    # this function turns team name into images/team_name_logo.png
+    def build_logo_filename(team_name: str) -> str:
+        return f"images/{team_name.lower().replace(' ', '_')}_logo.png"
+
+    home_name = meta["home_full"]
+    away_name = meta["away_full"]
+
+    home_logo = build_logo_filename(home_name)
+    away_logo = build_logo_filename(away_name)
+
+    if not meta:
+        return f"<h1>Game {game_id} not found in schedule</h1>"
+
+    # build context
+    return render_template(
+        "player_game_page.html",
+        player_id=player_id,
+        game_id=game_id,
+        home_full=meta.get("home_full"),
+        away_full=meta.get("away_full"),
+        home_name=home_name,
+        away_name=away_name,
+        home_logo=home_logo,
+        away_logo=away_logo,
+        date_et=meta.get("date_et"),
+        time_et=meta.get("time_et_text"),
+        arena=meta.get("arena"),
+        notes=meta.get("notes"),
+        home_abbr=meta.get("home_abbr"),
+        away_abbr=meta.get("away_abbr"),
+        is_home=(team_abbr == meta.get("home_abbr")),
+    )
 
 # route for the teams statistics page
 @app.route('/team/<team_abbr>')

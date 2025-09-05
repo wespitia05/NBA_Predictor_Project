@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA Predictor Project Player Game Page</title>
+    <!-- link to the css file in static folder -->
+    <link rel="stylesheet" href="{{url_for('static', filename='player_game_page.css')}}">
+    <!-- link to the js file in the static folder -->
+    <script src="{{url_for('static', filename='player_game_page.js')}}"></script>
+</head>
+<body>
+    <header>
+        <div class="team-logo">
+            <img src="{{ url_for('static', filename=away_logo) }}" alt="{{ away_name }} logo">
+        </div>
+        <!-- wrap title in container -->
+        <div class="header-text">
+            <!-- page title -->
+            <h1>{{ away_name }} @ {{ home_name }}</h1>
+            <p>{{ date_et }} {{ time_et_text }}</p>
+            <p>{{ notes }}</p>
+        </div>
+        <div class="team-logo">
+            <img src="{{ url_for('static', filename=home_logo) }}" alt="{{ home_name }} logo">
+        </div>
+    </header>
+    
+    <!-- footer -->
+    <footer>
+        <p>&copy; 2025 Courtside Predictor - Built with Flask</p>
+    </footer>
+</body>
+</html>

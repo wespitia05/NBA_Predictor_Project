@@ -1,0 +1,54 @@
+html, body {
+    height: 100%;  
+    margin: 0;  
+}
+
+/* overall page styling */
+body {
+    font-family: 'Jura', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+    text-align: center;
+    background: linear-gradient(to bottom right, #2b5ec3, #c8102e);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    color: #fff;
+    padding: 20px;
+    overflow-x: hidden;
+}
+
+/* styling for header */
+header {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+/* logo styling */
+.team-logo img {
+    width: 250px;
+}
+
+/* main title styling */
+.header-text {
+    text-align: center;
+    p {
+        font-size: 21px;
+    }
+}
+
+h1 {
+    font-size: 38px;
+    color: #98b7f5;
+}
+
+/* footer styling */
+footer {
+    margin-top: 50px;
+    font-size: 18px;
+    color: #fff;
+    padding: 50px 0;
+}
