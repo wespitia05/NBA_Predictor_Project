@@ -17,6 +17,7 @@
         <!-- wrap title in container -->
         <div class="header-text">
             <!-- page title -->
+            <h2>Upcoming Game For {{ player_name }}</h2>
             <h1>{{ away_name }} @ {{ home_name }}</h1>
             <p>{{ date_et }} {{ time_et_text }}</p>
             <p>{{ notes }}</p>
@@ -26,6 +27,56 @@
         </div>
     </header>
     
+    <!-- this section will display the players performance against the specified opponent over the last 5 games -->
+    <section class="player-vs-opp">
+        <h3>{{ player_name }}'s Performance Against {{ away_name }}</h3>
+        {% if player_last5_vs_opponent %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Game Date</th>
+                    <th>Matchup</th>
+                    <th>Season Type</th>
+                    <th>W/L</th>
+                    <th>MIN</th>
+                    <th>PTS</th>
+                    <th>REB</th>
+                    <th>AST</th>
+                    <th>STL</th>
+                    <th>BLK</th>
+                    <th>TOV</th>
+                    <th>FG%</th>
+                    <th>3P%</th>
+                    <th>FT%</th>
+                    <th>+/-</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in player_last5_vs_opponent %}
+                <tr>
+                    <td>{{ g['Game Date'] }}</td>
+                    <td>{{ g['Matchup'] }}</td>
+                    <td>{{ g['Season Type'] }}</td>
+                    <td>{{ g['W/L'] }}</td>
+                    <td>{{ g['MIN'] }}</td>
+                    <td>{{ g['PTS'] }}</td>
+                    <td>{{ g['REB'] }}</td>
+                    <td>{{ g['AST'] }}</td>
+                    <td>{{ g['STL'] }}</td>
+                    <td>{{ g['BLK'] }}</td>
+                    <td>{{ g['TOV'] }}</td>
+                    <td>{{ g['FG%'] }}</td>
+                    <td>{{ g['3P%'] }}</td>
+                    <td>{{ g['FT%'] }}</td>
+                    <td>{{ g['+/-'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <em>No recent games vs {{ opponent_abbr }} found.</em>
+        {% endif %}
+      </section>
     <!-- footer -->
     <footer>
         <p>&copy; 2025 Courtside Predictor - Built with Flask</p>

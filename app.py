@@ -98,6 +98,95 @@ def get_player_team_abbreviation(player_id: int) -> str:
     except Exception:
         return ""
 
+# this function will extract the opponent name from the player game page
+def extract_opp_from_matchup(matchup: str) -> str:
+    """
+    NBA API uses strings like 'NYK vs PHI' or 'NYK @ BOS'.
+    Opponent is always the last token.
+    """
+    if not isinstance(matchup, str):
+        return ""
+    parts = matchup.strip().split()
+    return parts[-1].upper() if parts else ""
+
+# this function will extract the players performance against the specified opponent for the last 5 matches
+def get_player_last_n_vs_opponent(player_id: int, opponent_abbr: str, n: int = 5):
+    seasons_try = ["2024-25", "2023-24", "2022-23"]
+    season_types = ("Playoffs", "Regular Season")
+    dfs = []
+
+    # collect game logs across a couple seasons & both season types
+    for season in seasons_try:
+        for st in season_types:
+            try:
+                gl = playergamelog.PlayerGameLog(
+                    player_id=player_id,
+                    season=season,
+                    season_type_all_star=st
+                )
+                df = gl.get_data_frames()[0]
+                if df is not None and not df.empty:
+                    # ensure we keep season type so we can show it in the table
+                    if "SEASON_TYPE" not in df.columns:
+                        df = df.copy()
+                        df["SEASON_TYPE"] = st
+                    dfs.append(df)
+            except Exception as e:
+                print(f"[DEBUG] get_player_last_n_vs_opponent: error {season} {st} -> {e}")
+
+    if not dfs:
+        return []  # no data
+
+    all_logs = pd.concat(dfs, ignore_index=True)
+
+    # robust opponent filter: parse from MATCHUP's last token
+    try:
+        opp_series = all_logs["MATCHUP"].apply(extract_opp_from_matchup)
+        mask = (opp_series == str(opponent_abbr).upper())
+        vs_df = all_logs.loc[mask].copy()
+    except Exception:
+        vs_df = pd.DataFrame()
+
+    if vs_df.empty:
+        return []
+
+    # parse game date for sorting (handle typical 'Jan 15, 2025' and fallbacks)
+    vs_df["GAME_DATE_PARSED"] = pd.to_datetime(
+        vs_df["GAME_DATE"], format="%b %d, %Y", errors="coerce"
+    )
+    if vs_df["GAME_DATE_PARSED"].isna().mean() > 0.5:
+        vs_df["GAME_DATE_PARSED"] = pd.to_datetime(vs_df["GAME_DATE"], errors="coerce")
+
+    # sort newest -> oldest and keep last N meetings vs that opponent
+    vs_df = vs_df.sort_values("GAME_DATE_PARSED", ascending=False, na_position="last").head(n)
+
+    # format shooting % to 0–100 scale (like you do elsewhere)
+    for col in ("FG_PCT", "FG3_PCT", "FT_PCT"):
+        if col in vs_df.columns:
+            vs_df[col] = (vs_df[col] * 100).round(1).astype(float)
+
+    # shape into list of dicts your template can loop over
+    rows = []
+    for _, row in vs_df.iterrows():
+        rows.append({
+            "Game Date": row.get("GAME_DATE", ""),
+            "Matchup": row.get("MATCHUP", ""),
+            "Season Type": row.get("SEASON_TYPE", ""),
+            "W/L": row.get("WL", ""),
+            "MIN": row.get("MIN", ""),
+            "PTS": row.get("PTS", ""),
+            "REB": row.get("REB", ""),
+            "AST": row.get("AST", ""),
+            "STL": row.get("STL", ""),
+            "BLK": row.get("BLK", ""),
+            "TOV": row.get("TOV", ""),
+            "FG%": row.get("FG_PCT", ""),
+            "3P%": row.get("FG3_PCT", ""),
+            "FT%": row.get("FT_PCT", ""),
+            "+/-": row.get("PLUS_MINUS", ""),
+        })
+    return rows
+
 # this function will get the 2025-26 schedule for the selected team
 def get_upcoming_games(team_abbr: str, n: int = 5):
     # url for the nba's json schedule file
@@ -611,10 +700,20 @@ def players_stats_page(player_id):
 # route for the players game page
 @app.route("/player_game/<int:player_id>/<game_id>")
 def player_game_page(player_id, game_id):
+    # get player name from API
+    try:
+        info = commonplayerinfo.CommonPlayerInfo(player_id=player_id).get_data_frames()[0]
+        player_name = str(info.at[0, "DISPLAY_FIRST_LAST"]).strip()
+    except Exception:
+        player_name = "Unknown Player"
+
     # get player + team info
     team_abbr = get_player_team_abbreviation(player_id)
     meta = find_game_in_schedule(game_id)
 
+    if not meta:
+        return f"<h1>Game {game_id} not found in schedule</h1>"
+    
     # this function turns team name into images/team_name_logo.png
     def build_logo_filename(team_name: str) -> str:
         return f"images/{team_name.lower().replace(' ', '_')}_logo.png"
@@ -625,13 +724,20 @@ def player_game_page(player_id, game_id):
     home_logo = build_logo_filename(home_name)
     away_logo = build_logo_filename(away_name)
 
-    if not meta:
-        return f"<h1>Game {game_id} not found in schedule</h1>"
+    # player team + opponent team abbr
+    player_team_abbr = get_player_team_abbreviation(player_id)
+    home_abbr = meta.get("home_abbr", "")
+    away_abbr = meta.get("away_abbr", "")
+    opponent_abbr = away_abbr if (player_team_abbr and player_team_abbr == home_abbr) else home_abbr
+
+    # last 5 vs this opponent
+    last5_vs_opp = get_player_last_n_vs_opponent(player_id, opponent_abbr, n=5)
 
     # build context
     return render_template(
         "player_game_page.html",
         player_id=player_id,
+        player_name=player_name,
         game_id=game_id,
         home_full=meta.get("home_full"),
         away_full=meta.get("away_full"),
@@ -643,9 +749,10 @@ def player_game_page(player_id, game_id):
         time_et=meta.get("time_et_text"),
         arena=meta.get("arena"),
         notes=meta.get("notes"),
-        home_abbr=meta.get("home_abbr"),
-        away_abbr=meta.get("away_abbr"),
-        is_home=(team_abbr == meta.get("home_abbr")),
+        home_abbr=home_abbr,
+        away_abbr=away_abbr,
+        opponent_abbr=opponent_abbr,
+        player_last5_vs_opponent=last5_vs_opp,
     )
 
 # route for the teams statistics page

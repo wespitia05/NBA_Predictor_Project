@@ -45,6 +45,19 @@ h1 {
     color: #98b7f5;
 }
 
+/* table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 0.5rem;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+
 /* footer styling */
 footer {
     margin-top: 50px;
