@@ -89,6 +89,15 @@ def get_player_average(player_id):
     except Exception:
         return None, None, None, None
 
+# this function will get the players team abbreviations for use when displaying upcoming games
+def get_player_team_abbreviation(player_id: int) -> str:
+    try:
+        df = commonplayerinfo.CommonPlayerInfo(player_id=player_id).get_data_frames()[0]
+        abbr = str(df.at[0, "TEAM_ABBREVIATION"]).strip()
+        return abbr if abbr and abbr != "None" else ""
+    except Exception:
+        return ""
+
 # this function will get the 2025-26 schedule for the selected team
 def get_upcoming_games(team_abbr: str, n: int = 5):
     # url for the nba's json schedule file
@@ -521,6 +530,12 @@ def players_stats_page(player_id):
         # return none if neither method works
         return None
     
+    # find the player's current team abbreviation
+    team_abbr = get_player_team_abbreviation(player_id)
+
+    # get next 5 games using the same helper for team stats page
+    upcoming_games = get_upcoming_games(team_abbr, n=5) if team_abbr else []
+
     games_df = fetch_recent_games(player_id)
 
     # default values
@@ -588,7 +603,9 @@ def players_stats_page(player_id):
                            age=age,
                            draft_text=draft_text,
                            experience=experience,
-                           player_recent_games=player_recent_games)
+                           player_recent_games=player_recent_games,
+                           upcoming_games=upcoming_games,
+                           team_abbr=team_abbr)
 
 # route for the teams statistics page
 @app.route('/team/<team_abbr>')
