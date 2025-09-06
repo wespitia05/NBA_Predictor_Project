@@ -29,7 +29,7 @@
     
     <!-- this section will display the players performance against the specified opponent over the last 5 games -->
     <section class="player-vs-opp">
-        <h3>{{ player_name }}'s Performance Against {{ away_name }}</h3>
+        <h3>Performance Against {{ away_name }}</h3>
         {% if player_last5_vs_opponent %}
         <table>
             <thead>
@@ -77,6 +77,32 @@
             <em>No recent games vs {{ opponent_abbr }} found.</em>
         {% endif %}
       </section>
+
+    <!-- this section will display the player performance prediciton for the next upcoming game -->
+    <section id="player-predict-section" 
+         data-player-id="{{ player_id }}" 
+         data-game-id="{{ game_id }}" 
+         data-player-name="{{ player_name }}">
+        <h3>{{ player_name }} Performance Prediction</h3>
+        <button id="player-predict-btn" class="player-predict-btn" type="button">Calculate Performance Probabilities</button>
+
+        <div id="player-predict-loading" class="hidden">Loading...</div>
+        <div id="player-predict-error" class="hidden error"></div>
+
+        <div id="player-predict-results" class="hidden">
+            <h3>Prediction Results</h3>
+          
+            <div id="player-pred-matrix"></div>
+          
+            <details id="player-pred-notes" class="predict-notes hidden">
+                <summary>How these probabilities are computed</summary>
+                <p>We look at the player’s last 5 games vs this opponent, compute the average and spread (standard
+                deviation) for each stat, assume a bell-curve (normal distribution), then estimate the chance
+                of going over/under each threshold.</p>
+            </details>
+        </div>
+    </section>
+
     <!-- footer -->
     <footer>
         <p>&copy; 2025 Courtside Predictor - Built with Flask</p>

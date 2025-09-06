@@ -15,6 +15,7 @@ from datetime import timezone, datetime, UTC
 # import zoneinfo
 from zoneinfo import ZoneInfo
 from sklearn.linear_model import LogisticRegression
+from scipy.stats import norm
 
 # creates the flask app
 app = Flask(__name__)
@@ -131,8 +132,19 @@ def get_player_last_n_vs_opponent(player_id: int, opponent_abbr: str, n: int = 5
                         df = df.copy()
                         df["SEASON_TYPE"] = st
                     dfs.append(df)
+                    tmp_all = pd.concat(dfs, ignore_index=True)
+                    opp_series = tmp_all["MATCHUP"].apply(extract_opp_from_matchup)
+                    if (opp_series == str(opponent_abbr).upper()).sum() >= n:
+                        raise StopIteration  # jump to except to exit both loops
+            except StopIteration:
+                break
             except Exception as e:
                 print(f"[DEBUG] get_player_last_n_vs_opponent: error {season} {st} -> {e}")
+        else:
+            # inner loop didn't break -> continue outer
+            continue
+        # inner loop broke with StopIteration
+        break
 
     if not dfs:
         return []  # no data
@@ -181,11 +193,80 @@ def get_player_last_n_vs_opponent(player_id: int, opponent_abbr: str, n: int = 5
             "BLK": row.get("BLK", ""),
             "TOV": row.get("TOV", ""),
             "FG%": row.get("FG_PCT", ""),
+            "3PM": row.get("FG3M", ""),
             "3P%": row.get("FG3_PCT", ""),
             "FT%": row.get("FT_PCT", ""),
             "+/-": row.get("PLUS_MINUS", ""),
         })
     return rows
+
+# route for predicting a player's performance vs opponent (PTS, 3PM, REB, AST, TOV, FTM)
+@app.route("/api/player_predict/<int:player_id>/<game_id>")
+def api_player_predict(player_id, game_id):
+    # get game meta (opponent info)
+    meta = find_game_in_schedule(game_id)
+    if not meta:
+        return jsonify({"error": "game not found"}), 404
+
+    # determine opponent abbreviation
+    player_team_abbr = get_player_team_abbreviation(player_id)
+    home_abbr = meta.get("home_abbr", "")
+    away_abbr = meta.get("away_abbr", "")
+    opponent_abbr = away_abbr if (player_team_abbr and player_team_abbr == home_abbr) else home_abbr
+
+    # get last 5 games for this player vs this opponent
+    last5 = get_player_last_n_vs_opponent(player_id, opponent_abbr, n=5)
+    if not last5:
+        return jsonify({
+            "player_id": player_id,
+            "game_id": game_id,
+            "opponent": opponent_abbr,
+            "features": {},
+            "reason": "No recent games vs opponent"
+        })
+
+    # features we want to predict
+    feature_map = {
+        "PTS": [10, 15, 20],   # thresholds for points
+        "3PM": [2, 3, 4],      # 3-pointers made
+        "REB": [5, 7, 10],     # rebounds
+        "AST": [3, 5, 7],      # assists
+        "TOV": [2, 3, 5],      # turnovers
+    }
+
+    results = {}
+
+    # loop over each feature and compute probabilities
+    for feature, thresholds in feature_map.items():
+        try:
+            values = [float(row.get(feature, 0)) for row in last5 if row.get(feature) not in ("", None)]
+        except Exception:
+            values = []
+
+        if not values:
+            results[feature] = [{"condition": "N/A", "prob": "No data"}]
+            continue
+
+        avg = np.mean(values)
+        std = np.std(values) if np.std(values) > 0 else 1.0
+
+        feature_probs = []
+        for t in thresholds:
+            # probability over threshold = 1 - CDF(t)
+            p_over = 1 - norm.cdf(t, loc=avg, scale=std)
+            p_under = 1 - p_over
+
+            feature_probs.append({"condition": f"Over {t}", "prob": round(100 * p_over, 1)})
+            feature_probs.append({"condition": f"Under {t}", "prob": round(100 * p_under, 1)})
+
+        results[feature] = feature_probs
+
+    return jsonify({
+        "player_id": player_id,
+        "game_id": game_id,
+        "opponent": opponent_abbr,
+        "features": results
+    })
 
 # this function will get the 2025-26 schedule for the selected team
 def get_upcoming_games(team_abbr: str, n: int = 5):

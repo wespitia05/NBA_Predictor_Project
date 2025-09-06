@@ -58,6 +58,44 @@ th, td {
     border: 1px solid #ccc;
 }
 
+/* prediction button styling */
+.player-predict-btn {
+    appearance: none;
+    background-color: #1d428a;
+    color: #fff;
+    padding: 15px 30px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.6s ease;
+}
+
+.player-predict-btn:hover {
+    background-color: #c8102e;
+    transform: scale(1.1);
+}
+
+.player-predict-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.predict-notes summary {
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.predict-notes p {
+    margin-top: 10px;
+}
+
+/* utility */
+.hidden {
+    display: none;
+}  
+
 /* footer styling */
 footer {
     margin-top: 50px;
