@@ -200,73 +200,65 @@ def get_player_last_n_vs_opponent(player_id: int, opponent_abbr: str, n: int = 5
         })
     return rows
 
-# route for predicting a player's performance vs opponent (PTS, 3PM, REB, AST, TOV, FTM)
-@app.route("/api/player_predict/<int:player_id>/<game_id>")
-def api_player_predict(player_id, game_id):
-    # get game meta (opponent info)
-    meta = find_game_in_schedule(game_id)
-    if not meta:
-        return jsonify({"error": "game not found"}), 404
+# this function will extract the stats from the last 5 games a team has versed a specified team
+def get_team_last_n_vs_opponent_from_csv(
+    team_abbr: str,
+    opp_abbr: str,
+    n: int = 5,
+    csv_path: str = "nba_games_2023_to_2025.csv",
+):
+    """
+    Returns a list of dict rows for the last N games this TEAM played vs the given OPP,
+    from the TEAM's perspective, using your aggregated CSV.
+    Each row includes: Game Date, Matchup, Season Type, Points, Rebounds, Assists, Turnovers, Win.
+    """
+    try:
+        df = pd.read_csv(csv_path)
+    except Exception:
+        return []
 
-    # determine opponent abbreviation
-    player_team_abbr = get_player_team_abbreviation(player_id)
-    home_abbr = meta.get("home_abbr", "")
-    away_abbr = meta.get("away_abbr", "")
-    opponent_abbr = away_abbr if (player_team_abbr and player_team_abbr == home_abbr) else home_abbr
+    # normalize columns we rely on
+    for col in ["TEAM ABBR", "OPP ABBR", "GAME DATE"]:
+        if col not in df.columns:
+            return []
 
-    # get last 5 games for this player vs this opponent
-    last5 = get_player_last_n_vs_opponent(player_id, opponent_abbr, n=5)
-    if not last5:
-        return jsonify({
-            "player_id": player_id,
-            "game_id": game_id,
-            "opponent": opponent_abbr,
-            "features": {},
-            "reason": "No recent games vs opponent"
+    # coerce dates once (avoids SettingWithCopy warnings downstream)
+    df = df.copy()
+    df["GAME DATE"] = pd.to_datetime(df["GAME DATE"], errors="coerce")
+
+    # your CSV sometimes has SEASON_TYPE or "Season Type"—standardize to SEASON_TYPE
+    if "SEASON_TYPE" not in df.columns and "Season Type" in df.columns:
+        df["SEASON_TYPE"] = df["Season Type"]
+
+    # filter to this team vs this opponent
+    mask = (
+        df["TEAM ABBR"].astype(str).str.upper().eq(team_abbr.upper())
+        & df["OPP ABBR"].astype(str).str.upper().eq(opp_abbr.upper())
+    )
+    sub = df.loc[mask].sort_values("GAME DATE", ascending=False).head(n)
+
+    # build rows for template
+    rows = []
+    for _, r in sub.iterrows():
+        # matchup string (use HOME/AWAY if present)
+        if "HOME/AWAY" in r and isinstance(r["HOME/AWAY"], str):
+            sep = "vs" if r["HOME/AWAY"] == "Home" else "@"
+        else:
+            # fallback if HOME/AWAY missing
+            sep = "vs"
+        matchup = f"{team_abbr.upper()} {sep} {opp_abbr.upper()}"
+
+        rows.append({
+            "Game Date": r["GAME DATE"].strftime("%b %d, %Y") if pd.notna(r["GAME DATE"]) else "",
+            "Matchup": matchup,
+            "Season Type": r.get("SEASON_TYPE", ""),
+            "Points": int(r["POINTS"]) if pd.notna(r.get("POINTS")) else None,
+            "Rebounds": int(r["REBOUNDS"]) if pd.notna(r.get("REBOUNDS")) else None,
+            "Assists": int(r["ASSISTS"]) if pd.notna(r.get("ASSISTS")) else None,
+            "Turnovers": int(r["TURNOVERS"]) if pd.notna(r.get("TURNOVERS")) else None,
+            "Win": int(r["WIN"]) if pd.notna(r.get("WIN")) else None,
         })
-
-    # features we want to predict
-    feature_map = {
-        "PTS": [10, 15, 20],   # thresholds for points
-        "3PM": [2, 3, 4],      # 3-pointers made
-        "REB": [5, 7, 10],     # rebounds
-        "AST": [3, 5, 7],      # assists
-        "TOV": [2, 3, 5],      # turnovers
-    }
-
-    results = {}
-
-    # loop over each feature and compute probabilities
-    for feature, thresholds in feature_map.items():
-        try:
-            values = [float(row.get(feature, 0)) for row in last5 if row.get(feature) not in ("", None)]
-        except Exception:
-            values = []
-
-        if not values:
-            results[feature] = [{"condition": "N/A", "prob": "No data"}]
-            continue
-
-        avg = np.mean(values)
-        std = np.std(values) if np.std(values) > 0 else 1.0
-
-        feature_probs = []
-        for t in thresholds:
-            # probability over threshold = 1 - CDF(t)
-            p_over = 1 - norm.cdf(t, loc=avg, scale=std)
-            p_under = 1 - p_over
-
-            feature_probs.append({"condition": f"Over {t}", "prob": round(100 * p_over, 1)})
-            feature_probs.append({"condition": f"Under {t}", "prob": round(100 * p_under, 1)})
-
-        results[feature] = feature_probs
-
-    return jsonify({
-        "player_id": player_id,
-        "game_id": game_id,
-        "opponent": opponent_abbr,
-        "features": results
-    })
+    return rows
 
 # this function will get the 2025-26 schedule for the selected team
 def get_upcoming_games(team_abbr: str, n: int = 5):
@@ -336,8 +328,8 @@ def get_upcoming_games(team_abbr: str, n: int = 5):
             
             # converts from utc to eastern time
             dt_et = dt_utc.astimezone(ET)
-            # formats date to yyyy-mm-dd
-            date_et_str = dt_et.date().isoformat()
+            # formats date to "Month Day, Year"
+            date_et_str = dt_et.strftime("%B %d, %Y")
 
             # figures out the type of game
             label = clean(g.get("gameLabel"))
@@ -836,6 +828,74 @@ def player_game_page(player_id, game_id):
         player_last5_vs_opponent=last5_vs_opp,
     )
 
+# route for predicting a player's performance vs opponent (PTS, 3PM, REB, AST, TOV, FTM)
+@app.route("/api/player_predict/<int:player_id>/<game_id>")
+def api_player_predict(player_id, game_id):
+    # get game meta (opponent info)
+    meta = find_game_in_schedule(game_id)
+    if not meta:
+        return jsonify({"error": "game not found"}), 404
+
+    # determine opponent abbreviation
+    player_team_abbr = get_player_team_abbreviation(player_id)
+    home_abbr = meta.get("home_abbr", "")
+    away_abbr = meta.get("away_abbr", "")
+    opponent_abbr = away_abbr if (player_team_abbr and player_team_abbr == home_abbr) else home_abbr
+
+    # get last 5 games for this player vs this opponent
+    last5 = get_player_last_n_vs_opponent(player_id, opponent_abbr, n=5)
+    if not last5:
+        return jsonify({
+            "player_id": player_id,
+            "game_id": game_id,
+            "opponent": opponent_abbr,
+            "features": {},
+            "reason": "No recent games vs opponent"
+        })
+
+    # features we want to predict
+    feature_map = {
+        "PTS": [10, 15, 20],   # thresholds for points
+        "3PM": [2, 3, 4],      # 3-pointers made
+        "REB": [5, 7, 10],     # rebounds
+        "AST": [3, 5, 7],      # assists
+        "TOV": [2, 3, 5],      # turnovers
+    }
+
+    results = {}
+
+    # loop over each feature and compute probabilities
+    for feature, thresholds in feature_map.items():
+        try:
+            values = [float(row.get(feature, 0)) for row in last5 if row.get(feature) not in ("", None)]
+        except Exception:
+            values = []
+
+        if not values:
+            results[feature] = [{"condition": "N/A", "prob": "No data"}]
+            continue
+
+        avg = np.mean(values)
+        std = np.std(values) if np.std(values) > 0 else 1.0
+
+        feature_probs = []
+        for t in thresholds:
+            # probability over threshold = 1 - CDF(t)
+            p_over = 1 - norm.cdf(t, loc=avg, scale=std)
+            p_under = 1 - p_over
+
+            feature_probs.append({"condition": f"Over {t}", "prob": round(100 * p_over, 1)})
+            feature_probs.append({"condition": f"Under {t}", "prob": round(100 * p_under, 1)})
+
+        results[feature] = feature_probs
+
+    return jsonify({
+        "player_id": player_id,
+        "game_id": game_id,
+        "opponent": opponent_abbr,
+        "features": results
+    })
+
 # route for the teams statistics page
 @app.route('/team/<team_abbr>')
 def team_stats(team_abbr):
@@ -899,7 +959,10 @@ def team_stats(team_abbr):
         'ASSISTS': 'Assists',
         'TURNOVERS': 'Turnovers',
         'WIN': 'Win'
-    })
+    }).copy()
+
+    # format the dates 
+    games['Game Date'] = games['Game Date'].dt.strftime("%B %d, %Y")
 
     # here we will extract the win-loss for the team
     # define 2024-25 season window (Oct 2024 – Jun 2025)
@@ -1131,16 +1194,34 @@ def game_page(game_id):
     meta = find_game_in_schedule(game_id)
     if not meta:
         return f"<h1>No schedule data found for game {game_id}</h1>"
-    
-    # this function turns team name into images/team_name_logo.png
+
+    # logo helper
     def build_logo_filename(team_name: str) -> str:
         return f"images/{team_name.lower().replace(' ', '_')}_logo.png"
 
-    home_name = meta["home_full"]
-    away_name = meta["away_full"]
+    home_name = meta.get("home_full", "Home Team")
+    away_name = meta.get("away_full", "Away Team")
+
+    home_abbr = meta.get("home_abbr", "")
+    away_abbr = meta.get("away_abbr", "")
+
+    if not home_abbr or not away_abbr:
+        try:
+            name_to_abbr = {t["full_name"]: t["abbreviation"] for t in teams.get_teams()}
+            if not home_abbr:
+                home_abbr = name_to_abbr.get(home_name, "")
+            if not away_abbr:
+                away_abbr = name_to_abbr.get(away_name, "")
+        except Exception:
+            pass
 
     home_logo = build_logo_filename(home_name)
     away_logo = build_logo_filename(away_name)
+
+    # only one table: last 5 meetings home vs away
+    last5_h2h = []
+    if home_abbr and away_abbr:
+        last5_h2h = get_team_last_n_vs_opponent_from_csv(home_abbr, away_abbr, n=5)
 
     return render_template(
         "game_page.html",
@@ -1149,12 +1230,15 @@ def game_page(game_id):
         away_name=away_name,
         home_logo=home_logo,
         away_logo=away_logo,
-        date_et=meta["date_et"],
-        time_et_text=meta["time_et_text"],
-        arena=meta["arena"],
-        label=meta["label"],
-        sub_label=meta["sub_label"],
-        notes=meta["notes"],
+        date_et=meta.get("date_et", ""),
+        time_et_text=meta.get("time_et_text", ""),
+        arena=meta.get("arena", ""),
+        label=meta.get("label", ""),
+        sub_label=meta.get("sub_label", ""),
+        notes=meta.get("notes", ""),
+        home_abbr=home_abbr,
+        away_abbr=away_abbr,
+        last5_h2h=last5_h2h,
     )
 
 # route for the players page

@@ -45,6 +45,23 @@ h1 {
     color: #98b7f5;
 }
 
+.team-vs-opp p {
+    margin-top: -10px;
+}
+
+/* table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 0.5rem;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+
 /* prediction styles */
 .predict-section {
     margin: 16px 0 24px;

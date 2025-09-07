@@ -45,6 +45,10 @@ h1 {
     color: #98b7f5;
 }
 
+.player-vs-opp p {
+    margin-top: -10px;
+}
+
 /* table styling */
 table {
     width: 100%;

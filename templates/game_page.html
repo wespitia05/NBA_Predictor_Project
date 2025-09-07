@@ -26,6 +26,46 @@
         </div>
     </header>
 
+    <section class="team-vs-opp">
+        <h3>Team Performance Against Opponent</h3>
+        <p>Based on data from 2023-2025</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Game Date</th>
+                    <th>Matchup</th>
+                    <th>Season Type</th>
+                    <th>Points</th>
+                    <th>Rebounds</th>
+                    <th>Assists</th>
+                    <th>Turnovers</th>
+                    <th>Win</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in last5_h2h %}
+                <tr>
+                    <td>{{ g["Game Date"] }}</td>
+                    <td>{{ g["Matchup"] }}</td>
+                    <td>{{ g["Season Type"] }}</td>
+                    <td>{{ g["Points"] }}</td>
+                    <td>{{ g["Rebounds"] }}</td>
+                    <td>{{ g["Assists"] }}</td>
+                    <td>{{ g["Turnovers"] }}</td>
+                    <td>{{ 'Yes' if g["Win"] == 1 else 'No' if g["Win"] == 0 else '' }}</td>
+                </tr>
+                {% endfor %}
+                {% if not last5_h2h %}
+                <tr>
+                    <td colspan="8">
+                        <em>No recent games found.</em>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </section>
+
     <!-- Prediction UI -->
     <section id="predict-section"
             class="predict-section"
