@@ -74,7 +74,7 @@ h1 {
     cursor: pointer;
 }
 
-.player-link, .game-link:hover {
+.player-link:hover, .game-link:hover {
     color: #98b7f5;
     text-decoration: underline;
 }
