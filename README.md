@@ -52,31 +52,31 @@ Built with clean, well-documented, production-ready code
 * Landing page with quick access to team and player stats, built with a clean and responsive UI.
 
 ### Eastern Conference Teams Page
-![Eastern_Conference_Teams_Page] (static/images/teams_east.png)
+![Eastern_Conference_Teams_Page](static/images/teams_east.png)
 * Displays all Eastern Conference teams with clickable logos for exploring team stats.
 
 ### Western Conference Teams Page
-![Western_Conference_Teams_Page] (static/images/teams_west.png)
+![Western_Conference_Teams_Page](static/images/teams_west.png)
 * Displays all Western Conference teams with clickable logos for exploring team stats.
 
 ### Team Stats Page
-![Team_Stats_Page] (static/images/team_stats.png)
+![Team_Stats_Page](static/images/team_stats.png)
 * Shows 5 upcoming games information, roster information & last 20 games for a selected team with averages for points, assists, rebounds, and turnovers. Matchups in upcoming games and player names in roster are clickable.
 
 ### Team Upcoming Game Page
-![Team_Upcoming_Game_Page] (static/images/team_game.png)
+![Team_Upcoming_Game_Page](static/images/team_game.png)
 * Provides a detailed breakdown of an individual upcoming game for current team against specified opponent, including past matchup statistics against the specified opponent. Just below is a predictor button that will determine the probability of a team winning the upcoming matchup, followed by a brief description of how we got that calculation.
 
 ### Player Search Page
-![Player_Search_Page] (static/images/player_search.png)
+![Player_Search_Page](static/images/player_search.png)
 * Search interface for finding any NBA player and pulling their recent performance data.
 
 ### Player Stats Page
-![Player_Stats_Page] (static/images/player_stats.png)
+![Player_Stats_Page](static/images/player_stats.png)
 * Displays a player’s 5 upcoming matchups information and the last 5 games performance statistics. Matchups in upcoming games are clickable.
 
 ### Player Game Page
-![Player_Game_Page] (static/images/player_game.png)
+![Player_Game_Page](static/images/player_game.png)
 * Detailed view of an individual game’s stats for a selected player against the specified opponent, including past matchup player performance statistics against the specified opponent. Just below is a predictor button that will determine the probability of the player going over/under in points, three pointers, rebounds, assists and turnovers.
 
 
