@@ -82,13 +82,40 @@ Built with clean, well-documented, production-ready code
 
 # Run Locally
 
-### 1. Clone the repo
-git clone https://github.com/wespitia05/NBA_Predictor_Project.git
-cd courtside-predictor
-
-### 2. Install dependencies
-pip install -r requirements.txt
-
-### 3. Run the Flask app
-python main.py
+## 1. Clone the repo
+```bash
+git clone https://github.com/wespitia05/NBA_Predictor_Project.git  
+cd NBA_Predictor_Project  
 ```
+
+## 2. Install dependencies
+
+(Optional but recommended) create and activate a virtual environment:
+
+```bash
+python -m venv venv  
+source venv/bin/activate   # On Windows: venv\Scripts\activate 
+``` 
+
+Then install dependencies:
+
+```bash
+pip install -r requirements.txt 
+``` 
+
+<details> <summary>Click to view requirements.txt</summary>
+Flask==3.0.3  
+pandas==2.2.3  
+scikit-learn==1.5.1  
+nba_api==1.6.1  
+requests==2.32.3  
+gunicorn==23.0.0  # (Optional, if deploying)
+</details>
+
+## 3. Run the Flask app
+
+```bash
+python main.py  
+```
+
+Then open http://127.0.0.1:5000 in your browser.
